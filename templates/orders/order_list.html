@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders | Palkay{% endblock %}
+
+{% block content %}
+<div class="account-wrap">
+  {% include "partials/account_sidebar.html" %}
+  <div class="account-main">
+    <h1>My Orders</h1>
+
+    {% if orders %}
+    <table class="page-table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Date</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td data-label="Order"><strong style="font-family:'Fraunces',serif;">{{ order.order_number }}</strong></td>
+          <td data-label="Date" style="color:var(--charcoal);">{{ order.created_at|date:"M d, Y" }}</td>
+          <td data-label="Items" style="color:var(--charcoal);">{{ order.items.count }} item{{ order.items.count|pluralize }}</td>
+          <td data-label="Total"><strong style="color:var(--rust);">${{ order.total }}</strong></td>
+          <td data-label="Status"><span class="order-status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+          <td data-label="Action">
+            <a href="{% url 'orders:detail' order.order_number %}" style="font-size:11px;font-weight:700;color:var(--rust);text-decoration:underline;">View →</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:60px 0;">
+      <div style="font-size:48px;margin-bottom:16px;">📦</div>
+      <h2 style="font-size:24px;font-style:italic;margin-bottom:10px;">No orders yet</h2>
+      <p style="color:var(--charcoal);margin-bottom:24px;">When you place an order, it'll appear here.</p>
+      <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">Start Shopping →</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

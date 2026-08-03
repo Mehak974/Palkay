@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} | Palkay{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 40px 20px;">
+  <div style="margin-bottom: 40px; text-align: center;">
+    <h1 style="margin-bottom: 20px;">{{ post.title }}</h1>
+    <div style="font-size: 14px; color: var(--charcoal);">
+      By {{ post.author.email }} on {{ post.created_at|date:"F j, Y" }}
+      {% if post.category %} | <a href="{% url 'blog:category' post.category.slug %}" style="color: var(--rust);">{{ post.category.name }}</a>{% endif %}
+    </div>
+  </div>
+  
+  <div style="color: var(--ink); line-height: 1.8; font-size: 16px;">
+    {{ post.content|linebreaks }}
+  </div>
+  
+  <div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); text-align: center;">
+    <a href="{% url 'blog:list' %}" class="btn btn-ghost">← Back to Blog</a>
+  </div>
+</div>
+{% endblock %}

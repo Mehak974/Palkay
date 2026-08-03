@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}My Account | Palkay{% endblock %}
+
+{% block content %}
+<div class="account-wrap">
+  {% include "partials/account_sidebar.html" %}
+  <div class="account-main">
+    <h1>Welcome back, {{ request.user.get_short_name }}!</h1>
+
+    <!-- Stats -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="value">{{ recent_orders.count }}</div>
+        <div class="label">Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">{{ wishlist_count }}</div>
+        <div class="label">Wishlist</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">{{ address_count }}</div>
+        <div class="label">Addresses</div>
+      </div>
+    </div>
+
+    <!-- Recent orders -->
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:20px;">Recent Orders</h2>
+        <a href="{% url 'orders:list' %}" class="see-all">View All →</a>
+      </div>
+
+      {% if recent_orders %}
+      <table class="page-table">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recent_orders %}
+          <tr>
+            <td><strong style="font-family:'Fraunces',serif;">{{ order.order_number }}</strong></td>
+            <td style="color:var(--charcoal);">{{ order.created_at|date:"M d, Y" }}</td>
+            <td><strong style="color:var(--rust);">${{ order.total }}</strong></td>
+            <td><span class="order-status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+            <td><a href="{% url 'orders:detail' order.order_number %}" style="font-size:11px;font-weight:700;color:var(--rust);text-decoration:underline;">View →</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="background:var(--panel);padding:32px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:10px;">📦</div>
+        <p style="color:var(--charcoal);">No orders yet. <a href="{% url 'catalog:product_list' %}" style="color:var(--rust);text-decoration:underline;">Start shopping →</a></p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

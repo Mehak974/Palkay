@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Contact Us | Palkay{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="section-label">Get in touch</div>
+    <h1>Contact Us</h1>
+    <p class="page-hero-sub">We respond within 24 hours, Monday–Sunday.</p>
+  </div>
+</div>
+
+<div class="contact-grid-wrap" style="max-width:80%;margin:0 auto;padding:64px 40px 80px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;">
+
+  <!-- Contact info -->
+  <div>
+    <div class="section-label">How to reach us</div>
+    <h2 style="font-size:32px;margin-bottom:28px;line-height:1.1;">Real humans,<br><em style="color:var(--rust);">real answers.</em></h2>
+    <div style="display:flex;flex-direction:column;gap:24px;">
+      <div style="display:flex;gap:16px;align-items:flex-start;">
+        <div style="font-size:24px;margin-top:2px;">✉️</div>
+        <div>
+          <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Email</div>
+          <div style="color:var(--charcoal);"><a href="mailto:procurement@palkay.com" style="color:inherit;text-decoration:none;">procurement@palkay.com</a></div>
+          <div style="color:var(--charcoal);margin-top:2px;"><a href="mailto:contact@palkay.com" style="color:inherit;text-decoration:none;">contact@palkay.com</a></div>
+          <div style="font-size:12px;color:var(--charcoal);margin-top:4px;">Response within 24 hours</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;">
+        <div style="font-size:24px;margin-top:2px;">📞</div>
+        <div>
+          <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Phone</div>
+          <div style="color:var(--charcoal);">+1 (737) 402 2788</div>
+          <div style="font-size:12px;color:var(--charcoal);margin-top:2px;">Mon–Sun, 9am–8pm CT</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;">
+        <div style="font-size:24px;margin-top:2px;">📍</div>
+        <div>
+          <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Headquarters</div>
+          <div style="color:var(--charcoal);">5900 Balcones Dr Ste 16430<br>Austin, Texas, USA</div>
+          <div style="font-size:12px;color:var(--charcoal);margin-top:2px;">Serving the Austin metro area</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card">
+    <div style="font-size:18px;font-family:'Fraunces',serif;font-style:italic;margin-bottom:24px;">Send us a message</div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Your name *</label>
+        <input type="text" name="name" class="form-input" placeholder="Full name" value="{{ request.POST.name|default:'' }}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input type="email" name="email" class="form-input" placeholder="your@email.com" value="{{ request.POST.email|default:'' }}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone <span style="font-weight:400;text-transform:none;">(optional)</span></label>
+        <input type="tel" name="phone" class="form-input" placeholder="+1 (555) 000-0000" value="{{ request.POST.phone|default:'' }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input type="text" name="subject" class="form-input" placeholder="Order issue, product question…" value="{{ request.POST.subject|default:'' }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message *</label>
+        <textarea name="message" class="form-input" rows="5" placeholder="How can we help?" required>{{ request.POST.message|default:'' }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Send Message →</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

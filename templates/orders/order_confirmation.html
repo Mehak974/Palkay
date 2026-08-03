@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmed — #{{ order.order_number }} | Palkay{% endblock %}
+
+{% block content %}
+<div style="max-width:720px;margin:0 auto;padding:64px 40px 80px;text-align:center;">
+
+  <div style="font-size:64px;margin-bottom:20px;">✅</div>
+  <div style="font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--rust);font-weight:700;margin-bottom:12px;">Order Placed</div>
+  <h1 style="font-size:38px;font-style:italic;margin-bottom:12px;">Thank you{% if order.user %}, {{ order.user.get_short_name }}{% endif %}!</h1>
+  <p style="font-size:14px;color:var(--charcoal);max-width:480px;margin:0 auto 36px;line-height:1.72;">
+    Your order <strong>#{{ order.order_number }}</strong> has been placed and is being processed.
+    {% if order.user %}We'll update you as it progresses.{% elif order.guest_email %}A confirmation has been sent to {{ order.guest_email }}.{% endif %}
+  </p>
+
+  <!-- Order box -->
+  <div style="background:var(--panel);padding:32px;text-align:left;margin-bottom:32px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line);">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--charcoal);margin-bottom:4px;">Order number</div>
+        <div style="font-family:'Fraunces',serif;font-size:22px;">{{ order.order_number }}</div>
+      </div>
+      <span class="order-status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+    </div>
+
+    {% for item in items %}
+    <div style="display:flex;gap:14px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line);">
+      <div style="width:56px;height:56px;background:var(--panel2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;">
+        {% if item.product and item.product.primary_image %}
+        <img src="{{ item.product.primary_image.image.url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}🛍{% endif %}
+      </div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:14px;">{{ item.product_name }}</div>
+        {% if item.variant_attributes %}
+        <div style="font-size:11px;color:var(--charcoal);">
+          {% for k, v in item.variant_attributes.items %}{{ k }}: {{ v }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        </div>
+        {% endif %}
+        <div style="font-size:12px;color:var(--charcoal);">Qty: {{ item.quantity }} × ${{ item.product_price }}</div>
+      </div>
+      <div style="font-weight:700;color:var(--rust);">${{ item.line_total }}</div>
+    </div>
+    {% endfor %}
+
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--charcoal);margin-bottom:6px;"><span>Subtotal</span><span>${{ order.subtotal }}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--charcoal);margin-bottom:12px;"><span>Shipping</span><span>{% if order.shipping_fee == 0 %}Free{% else %}${{ order.shipping_fee }}{% endif %}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;border-top:1px solid var(--line);padding-top:12px;"><span>Total</span><span style="color:var(--rust);">${{ order.total }}</span></div>
+  </div>
+
+  <!-- Delivery address -->
+  <div style="background:var(--panel);padding:24px 32px;text-align:left;margin-bottom:32px;">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--charcoal);margin-bottom:10px;">Delivering to</div>
+    <div style="font-weight:700;margin-bottom:4px;">{{ order.delivery_address.full_name }}</div>
+    <div style="font-size:13px;color:var(--charcoal);line-height:1.7;">
+      {{ order.delivery_address.address_line_1 }}{% if order.delivery_address.address_line_2 %}, {{ order.delivery_address.address_line_2 }}{% endif %}<br>
+      {{ order.delivery_address.city }}, {{ order.delivery_address.state }} {{ order.delivery_address.zip_code }}<br>
+      {{ order.delivery_address.phone }}
+    </div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--charcoal);">
+      <span>💵</span> Cash on Delivery
+    </div>
+    {% if order.special_instructions %}
+    <div style="margin-top:10px;font-size:12px;color:var(--charcoal);">
+      <strong>Note:</strong> {{ order.special_instructions }}
+    </div>
+    {% endif %}
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    {% if user.is_authenticated %}
+    <a href="{% url 'orders:detail' order.order_number %}" class="btn btn-primary">Track Your Order</a>
+    <a href="{% url 'catalog:product_list' %}" class="btn btn-ghost">Continue Shopping</a>
+    {% else %}
+    <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">Continue Shopping →</a>
+    <a href="{% url 'users:register' %}" class="btn btn-ghost">Create an Account</a>
+    {% endif %}
+  </div>
+
+  {% if order.can_be_cancelled_by_user %}
+  <div style="margin-top:24px;font-size:12px;color:var(--charcoal);">
+    Changed your mind? <a href="{% url 'orders:cancel' order.order_number %}" style="color:var(--rust);text-decoration:underline;">Cancel this order</a> (available for 2 hours after placement)
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

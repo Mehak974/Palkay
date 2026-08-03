@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Checkout | Palkay{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="section-label">Almost there</div>
+    <h1>Checkout</h1>
+    <p class="page-hero-sub">Cash on Delivery — pay when your order arrives</p>
+  </div>
+</div>
+
+<div class="checkout-wrap">
+  <div class="checkout-grid">
+
+    <!-- Left: Address + Notes -->
+    <div>
+
+      <!-- Saved Addresses (logged in users) -->
+      {% if saved_addresses %}
+      <div class="checkout-block">
+        <div class="checkout-block-title">Deliver to a saved address</div>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="use_saved">
+          {% for addr in saved_addresses %}
+          <label class="address-radio-card {% if addr.is_default %}selected{% endif %}">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <input type="radio" name="address_id" value="{{ addr.id }}" {% if addr.is_default %}checked{% endif %}
+                     style="margin-top:3px;accent-color:var(--ink);">
+              <div>
+                <div style="font-weight:700;font-size:13px;margin-bottom:3px;">{{ addr.full_name }}</div>
+                <div style="font-size:12px;color:var(--charcoal);line-height:1.6;">
+                  {{ addr.address_line_1 }}{% if addr.address_line_2 %}, {{ addr.address_line_2 }}{% endif %}<br>
+                  {{ addr.city }}, {{ addr.state }} {{ addr.zip_code }}<br>
+                  {{ addr.phone }}
+                </div>
+                {% if addr.is_default %}<div style="font-size:10px;color:var(--rust);font-weight:700;margin-top:4px;text-transform:uppercase;letter-spacing:.06em;">Default</div>{% endif %}
+              </div>
+            </div>
+          </label>
+          {% endfor %}
+
+          <!-- Notes -->
+          <div style="margin-top:20px;">
+            <div class="checkout-block-title">Special Instructions (optional)</div>
+            <textarea name="special_instructions" class="form-input" rows="3"
+                      placeholder="Any special delivery instructions?">{{ notes_form.special_instructions.value|default:'' }}</textarea>
+          </div>
+
+          <div style="margin-top:20px;">
+            <button type="submit" class="btn btn-primary btn-full">Place Order — Cash on Delivery →</button>
+          </div>
+        </form>
+
+        <div style="margin:24px 0;display:flex;align-items:center;gap:12px;">
+          <div style="flex:1;height:1px;background:var(--line);"></div>
+          <span style="font-size:11px;color:var(--charcoal);text-transform:uppercase;letter-spacing:.08em;">or use a new address</span>
+          <div style="flex:1;height:1px;background:var(--line);"></div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- New Address Form -->
+      <div class="checkout-block">
+        <div class="checkout-block-title">
+          {% if saved_addresses %}New delivery address{% else %}Delivery address{% endif %}
+        </div>
+
+        <form method="post" class="form-card">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="new_address">
+
+          {% if guest_form %}
+          <div style="margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--line);">
+            <div class="checkout-block-title" style="margin-bottom:12px;">Your email</div>
+            <div class="form-group">
+              <label class="form-label">Email address *</label>
+              {{ guest_form.email }}
+              {% if guest_form.email.errors %}<div class="form-error">{{ guest_form.email.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="form-grid-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group" style="grid-column:span 2;">
+              <label class="form-label">Full name *</label>
+              {{ address_form.full_name }}
+              {% if address_form.full_name.errors %}<div class="form-error">{{ address_form.full_name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group" style="grid-column:span 2;">
+              <label class="form-label">Phone *</label>
+              {{ address_form.phone }}
+              {% if address_form.phone.errors %}<div class="form-error">{{ address_form.phone.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group" style="grid-column:span 2;">
+              <label class="form-label">Street address *</label>
+              {{ address_form.address_line_1 }}
+              {% if address_form.address_line_1.errors %}<div class="form-error">{{ address_form.address_line_1.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group" style="grid-column:span 2;">
+              <label class="form-label">Apt / Suite / Unit</label>
+              {{ address_form.address_line_2 }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">City *</label>
+              {{ address_form.city }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">State</label>
+              {{ address_form.state }}
+            </div>
+            <div class="form-group">
+              <label class="form-label">ZIP code *</label>
+              {{ address_form.zip_code }}
+              {% if address_form.zip_code.errors %}<div class="form-error">{{ address_form.zip_code.errors.0 }}</div>{% endif %}
+            </div>
+            {% if user.is_authenticated %}
+            <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+              {{ address_form.is_default }}
+              <label style="font-size:12px;color:var(--charcoal);cursor:pointer;">Save as default address</label>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Notes -->
+          <div style="margin-top:8px;">
+            <label class="form-label">Special Instructions (optional)</label>
+            {{ notes_form.special_instructions }}
+          </div>
+
+          <div style="margin-top:24px;">
+            <button type="submit" class="btn btn-primary btn-full">Place Order — Cash on Delivery →</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right: Order summary -->
+    <div>
+      <div class="cart-summary" style="position:sticky;top:90px;">
+        <h3>Order Summary</h3>
+
+        {% for item in cart_items %}
+        <div style="display:flex;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line);">
+          <div style="width:48px;height:48px;background:var(--panel);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;">
+            {% if item.product.primary_image %}
+            <img src="{{ item.product.primary_image.image.url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+            {% else %}🛍{% endif %}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.product.name }}</div>
+            {% if item.variant %}
+            <div style="font-size:11px;color:var(--charcoal);">
+              {% for av in item.variant.attribute_values.all %}{{ av.value }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            <div style="font-size:11px;color:var(--charcoal);">Qty: {{ item.quantity }}</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--rust);white-space:nowrap;">${{ item.line_total }}</div>
+        </div>
+        {% endfor %}
+
+        <div class="summary-row"><span>Subtotal</span><span>${{ cart.subtotal }}</span></div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span>{% if cart.shipping_fee == 0 %}<span style="color:var(--success);font-weight:700;">Free</span>{% else %}${{ cart.shipping_fee }}{% endif %}</span>
+        </div>
+        <div class="summary-row total"><span>Total</span><span>${{ cart.total }}</span></div>
+
+        <div style="margin-top:20px;" class="cod-badge">
+          <span style="font-size:22px;">💵</span>
+          <div>
+            <div style="font-weight:700;font-size:12px;margin-bottom:2px;">Cash on Delivery</div>
+            <div style="font-size:11px;color:var(--charcoal);">Pay in cash when your order arrives. No card required.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ page.meta_title|default:page.title }} | Palkay{% endblock %}
+{% block meta_description %}{{ page.meta_description }}{% endblock %}
+
+{% block content %}
+{% if faq_items %}
+<!-- JSON-LD FAQPage Schema for AEO / GEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for item in faq_items %}
+    {
+      "@type": "Question",
+      "name": "{{ item.question|escapejs }}",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "{{ item.answer|escapejs }}"
+      }
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <h1>{{ page.title }}</h1>
+  </div>
+</div>
+<div style="max-width:760px;margin:0 auto;padding:48px 40px 80px;font-size:14px;color:var(--charcoal);line-height:1.8;">
+  {{ page.content|safe }}
+</div>
+{% endblock %}

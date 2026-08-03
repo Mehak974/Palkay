@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Your Cart | Palkay{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="section-label">Shopping</div>
+    <h1>Your Cart</h1>
+    {% if cart and cart.total_items > 0 %}
+    <p class="page-hero-sub">{{ cart.total_items }} item{{ cart.total_items|pluralize }} ready to order</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="cart-wrap">
+  {% if cart and cart.total_items > 0 %}
+  <div class="cart-grid">
+
+    <!-- Items -->
+    <div>
+      <div class="cart-items-table">
+        {% for item in items %}
+        <div class="cart-item-row">
+          <!-- Image -->
+          <a href="{{ item.product.get_absolute_url }}">
+            {% if item.product.primary_image %}
+            <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" class="cart-item-img">
+            {% else %}
+            <div class="cart-item-img" style="display:flex;align-items:center;justify-content:center;font-size:28px;">🛍</div>
+            {% endif %}
+          </a>
+
+          <!-- Info -->
+          <div class="cart-item-name">
+            <a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
+            {% if item.variant %}
+            <div class="cart-item-meta">
+              {% for av in item.variant.attribute_values.all %}{{ av.attribute_type.name }}: {{ av.value }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if item.product.brand %}
+            <div class="cart-item-meta">{{ item.product.brand.name }}</div>
+            {% endif %}
+            <div class="cart-item-meta" style="margin-top:8px;">
+              <form method="post" action="{% url 'cart:remove' item.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="background:none;border:none;font-size:11px;color:var(--charcoal);cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Quantity -->
+          <form method="post" action="{% url 'cart:update' item.id %}" style="display:flex;align-items:center;gap:6px;">
+            {% csrf_token %}
+            <div class="qty-input" style="transform:scale(.9);transform-origin:center;">
+              <button type="button" data-qty="dec">−</button>
+              <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="100"
+                     style="width:40px;height:38px;text-align:center;border:none;border-left:1px solid var(--line);border-right:1px solid var(--line);background:transparent;font-size:13px;font-family:'Sora',sans-serif;outline:none;">
+              <button type="button" data-qty="inc">+</button>
+            </div>
+            <button type="submit" class="btn btn-ghost btn-sm">Update</button>
+          </form>
+
+          <!-- Price -->
+          <div style="text-align:right;min-width:80px;">
+            <div style="font-size:15px;font-weight:700;color:var(--rust);">${{ item.line_total }}</div>
+            <div style="font-size:11px;color:var(--charcoal);margin-top:3px;">${{ item.effective_price }} each</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Continue shopping -->
+      <div style="margin-top:20px;">
+        <a href="{% url 'catalog:product_list' %}" class="btn btn-ghost">← Continue Shopping</a>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="cart-summary">
+      <h3>Order Summary</h3>
+
+      {% for item in items %}
+      <div class="summary-row">
+        <span>{{ item.product.name|truncatechars:28 }} ×{{ item.quantity }}</span>
+        <span>${{ item.line_total }}</span>
+      </div>
+      {% endfor %}
+
+      <div class="summary-row" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);">
+        <span>Subtotal</span>
+        <span>${{ cart.subtotal }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span>
+          {% if cart.shipping_fee == 0 %}
+          <span style="color:var(--success);font-weight:700;">Free</span>
+          {% else %}
+          ${{ cart.shipping_fee }}
+          {% endif %}
+        </span>
+      </div>
+      {% if cart.shipping_fee > 0 %}
+      <div style="font-size:11px;color:var(--charcoal);margin-bottom:10px;">
+        Add ${{ cart.shipping_fee|add:cart.subtotal|floatformat:2 }} more for free shipping
+      </div>
+      {% endif %}
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>${{ cart.total }}</span>
+      </div>
+
+      <div style="margin-top:6px;margin-bottom:20px;font-size:11px;color:var(--charcoal);">
+        Payment: Cash on Delivery (COD)
+      </div>
+
+      <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-full">
+        Proceed to Checkout →
+      </a>
+
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--charcoal);">
+          <span>🔒</span> Secure checkout
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--charcoal);">
+          <span>↺</span> 7-day free returns
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--charcoal);">
+          <span>🚚</span> Free shipping over $200
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="cart-empty">
+    <div style="font-size:64px;margin-bottom:20px;">🛒</div>
+    <h2>Your cart is empty</h2>
+    <p style="color:var(--charcoal);margin-bottom:28px;">Looks like you haven't added anything yet.</p>
+    <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">Start Shopping →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

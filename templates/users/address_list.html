@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}My Addresses | Palkay{% endblock %}
+{% block content %}
+<div class="account-wrap">
+  {% include "partials/account_sidebar.html" %}
+  <div class="account-main">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h1>My Addresses</h1>
+      <a href="{% url 'users:address_add' %}" class="btn btn-primary btn-sm">+ Add Address</a>
+    </div>
+    {% if addresses %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+      {% for addr in addresses %}
+      <div style="border:1.5px solid {% if addr.is_default %}var(--ink){% else %}var(--line){% endif %};padding:22px;">
+        {% if addr.is_default %}
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;font-weight:800;color:var(--rust);margin-bottom:8px;">Default</div>
+        {% endif %}
+        <div style="font-weight:700;margin-bottom:6px;">{{ addr.full_name }}</div>
+        <div style="font-size:13px;color:var(--charcoal);line-height:1.7;margin-bottom:14px;">
+          {{ addr.address_line_1 }}{% if addr.address_line_2 %}, {{ addr.address_line_2 }}{% endif %}<br>
+          {{ addr.city }}, {{ addr.state }} {{ addr.zip_code }}<br>
+          {{ addr.phone }}
+        </div>
+        <div style="display:flex;gap:10px;">
+          <a href="{% url 'users:address_edit' addr.pk %}" class="btn btn-ghost btn-sm">Edit</a>
+          {% if not addr.orders.exists %}
+          <form method="post" action="{% url 'users:address_delete' addr.pk %}" onsubmit="return confirm('Delete this address?')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--error);border-color:var(--error);">Delete</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="background:var(--panel);padding:48px;text-align:center;">
+      <div style="font-size:40px;margin-bottom:14px;">📍</div>
+      <h2 style="font-size:22px;font-style:italic;margin-bottom:10px;">No saved addresses</h2>
+      <p style="color:var(--charcoal);margin-bottom:24px;">Add a delivery address to speed up future checkouts.</p>
+      <a href="{% url 'users:address_add' %}" class="btn btn-primary">Add Address →</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

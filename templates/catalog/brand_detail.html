@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ brand.name }} | Palkay{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="section-label">Brand</div>
+    <h1>{{ brand.name }}</h1>
+    {% if brand.description %}<p class="page-hero-sub" style="max-width:600px;margin-top:10px;">{{ brand.description }}</p>{% endif %}
+  </div>
+</div>
+<div class="catalog-wrap" style="max-width:80%;margin:0 auto;padding:32px 40px 80px;">
+  <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line);">
+    <span style="font-size:13px;color:var(--charcoal);">{{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }}</span>
+  </div>
+  {% if page_obj.object_list %}
+  <div class="product-grid">
+    {% for product in page_obj %}{% include "partials/product_card.html" %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="cart-empty"><div style="font-size:48px;margin-bottom:16px;">📦</div><h2>No products yet</h2></div>
+  {% endif %}
+</div>
+{% endblock %}

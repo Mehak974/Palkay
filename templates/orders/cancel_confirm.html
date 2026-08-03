@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Cancel Order {{ order.order_number }} | Palkay{% endblock %}
+
+{% block content %}
+<div style="max-width:520px;margin:80px auto;padding:0 40px;">
+  <div style="background:var(--panel);padding:40px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+    <h1 style="font-size:26px;margin-bottom:10px;">Cancel this order?</h1>
+    <p style="color:var(--charcoal);font-size:14px;line-height:1.7;margin-bottom:8px;">
+      Order <strong>#{{ order.order_number }}</strong> will be cancelled and your items will be restocked.
+    </p>
+    <p style="color:var(--charcoal);font-size:13px;margin-bottom:28px;">This action cannot be undone.</p>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-rust">Yes, Cancel Order</button>
+      </form>
+      <a href="{% url 'orders:detail' order.order_number %}" class="btn btn-ghost">Keep Order</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

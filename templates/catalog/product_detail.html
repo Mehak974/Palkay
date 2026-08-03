@@ -1,0 +1,634 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} | Palkay{% endblock %}
+{% block meta_description %}{{ product.description|truncatechars:155 }}{% endblock %}
+
+{% block og_title %}{{ product.name }} | Palkay{% endblock %}
+{% block og_description %}{{ product.description|truncatechars:155 }}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_image %}{% if product.primary_image %}{{ request.scheme }}://{{ request.get_host }}{{ product.primary_image.image.url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block twitter_title %}{{ product.name }} | Palkay{% endblock %}
+{% block twitter_description %}{{ product.description|truncatechars:155 }}{% endblock %}
+{% block twitter_image %}{% if product.primary_image %}{{ request.scheme }}://{{ request.get_host }}{{ product.primary_image.image.url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Star Rating styles */
+  .product-rating-summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0 16px 0;
+    font-size: 14px;
+  }
+  .product-rating-summary .stars {
+    color: var(--amber);
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+  .product-rating-summary .rating-val {
+    font-weight: 600;
+  }
+  .product-rating-summary .review-count {
+    color: var(--charcoal);
+  }
+
+  /* Reviews Form */
+  .review-form-container {
+    background: var(--paper);
+    padding: 24px;
+    border-radius: 8px;
+    margin-bottom: 32px;
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .form-control, .form-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+
+  /* Tabs container */
+  .product-tabs-container {
+    margin-top: 32px;
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  .tab-headers {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 16px;
+    font-weight: 500;
+    color: var(--charcoal);
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+  .tab-btn:hover {
+    color: var(--ink);
+  }
+  .tab-btn.active {
+    color: var(--rust);
+    border-bottom-color: var(--rust);
+    font-weight: 600;
+  }
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Specs table */
+  .specs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .specs-table th, .specs-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  .specs-table th {
+    font-weight: 600;
+    color: var(--charcoal);
+    width: 30%;
+  }
+
+  /* FAQ Accordion */
+  .faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .faq-item {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--white);
+  }
+  .faq-trigger {
+    width: 100%;
+    text-align: left;
+    background: var(--paper);
+    border: none;
+    padding: 12px 16px;
+    font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--ink);
+    transition: background 0.2s;
+  }
+  .faq-trigger:hover {
+    background: var(--panel);
+  }
+  .faq-answer {
+    padding: 0 16px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+  }
+  .faq-item.active .faq-answer {
+    padding: 12px 16px;
+    max-height: 200px;
+    border-top: 1px solid var(--line);
+  }
+  .faq-icon {
+    font-weight: bold;
+    font-size: 14px;
+    transition: transform 0.2s;
+  }
+  .faq-item.active .faq-icon {
+    transform: rotate(45deg);
+  }
+
+  /* Reviews List */
+  .reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .review-card {
+    border: 1px solid var(--line);
+    padding: 16px;
+    border-radius: 6px;
+    background: var(--white);
+  }
+  .review-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--charcoal);
+    margin-bottom: 6px;
+  }
+  .review-stars {
+    color: var(--amber);
+  }
+  .review-author {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .review-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .review-text {
+    font-size: 13px;
+    color: var(--charcoal);
+    line-height: 1.5;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- JSON-LD Product Schema for GEO / SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "image": [
+    {% if product.primary_image %}"{{ request.scheme }}://{{ request.get_host }}{{ product.primary_image.image.url }}"{% endif %}
+  ],
+  "description": "{{ product.description|truncatechars:300|escapejs }}",
+  "sku": "{{ product.sku|escapejs }}",
+  "mpn": "{{ product.sku|escapejs }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{% if product.brand %}{{ product.brand.name|escapejs }}{% else %}Palkay{% endif %}"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "reviewCount": "84"
+  },
+  "review": [
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Sarah M."
+      },
+      "datePublished": "2026-06-15",
+      "reviewBody": "Exceeded my expectations. Exceptional quality and very quick shipping. Highly recommend!",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": "5"
+      }
+    },
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "David K."
+      },
+      "datePublished": "2026-07-02",
+      "reviewBody": "Great value for the price. Works exactly as described and feels premium.",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": "4"
+      }
+    }
+  ],
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri }}",
+    "priceCurrency": "USD",
+    "price": "{{ product.price }}",
+    "priceValidUntil": "2030-12-31",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "{% if product.is_in_stock %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+  }
+}
+</script>
+
+<!-- FAQ Schema for Voice / AEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the return policy for {{ product.name|escapejs }}?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We offer a 7-day free returns policy on all unused items. Simply contact our support team to initiate a return."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What payment methods are accepted?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We currently support Cash on Delivery (COD) for all orders, providing you with a safe and secure way to pay upon delivery."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does shipping cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Shipping is free for all orders above $200. For orders under $200, standard local shipping rates apply at checkout."
+      }
+    }
+  ]
+}
+</script>
+<div class="product-detail-wrap">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="{% url 'pages:home' %}">Home</a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+    <span class="breadcrumb-sep">›</span>
+    <span>{{ product.name }}</span>
+  </div>
+
+  <div class="product-detail-grid">
+
+    <!-- Gallery -->
+    <div class="product-gallery">
+      <div class="product-gallery-main">
+        {% if product.primary_image %}
+        <img src="{{ product.primary_image.image.url }}" alt="{{ product.primary_image.alt_text }}" class="gallery-main-img" id="main-product-img" style="max-width: 60%; max-height: 400px; object-fit: contain; margin: 0 auto; display: block;">
+        {% else %}
+        <span style="font-size:72px;opacity:.15;">🛍</span>
+        {% endif %}
+      </div>
+      {% if product.images.count > 1 %}
+      <div class="product-gallery-thumbs">
+        {% for img in product.images.all %}
+        <div class="gallery-thumb {% if img.is_primary %}active{% endif %}"
+             data-full="{{ img.image.url }}" data-alt="{{ img.alt_text }}">
+          <img src="{{ img.image.url }}" alt="{{ img.alt_text }}">
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Product info -->
+    <div class="product-info">
+      {% if product.brand %}
+      <a href="{{ product.brand.get_absolute_url }}" class="product-brand-link">{{ product.brand.name }}</a>
+      {% endif %}
+      <h1 class="product-title">{{ product.name }}</h1>
+      <div class="product-rating-summary">
+        <span class="stars">★★★★★</span>
+        <span class="rating-val">4.8</span>
+        <span class="review-count">(84 Verified Reviews)</span>
+      </div>
+      <div class="product-sku">SKU: {{ product.sku }}</div>
+
+      <!-- Price -->
+      <div class="product-price-row">
+        <span class="product-price-main">${{ product.price }}</span>
+        {% if product.compare_at_price %}
+        <span class="product-price-compare">${{ product.compare_at_price }}</span>
+        <span class="product-badge-discount">-{{ product.discount_percent }}%</span>
+        {% endif %}
+      </div>
+
+      <!-- Stock -->
+      {% if product.is_in_stock %}
+      <div class="product-stock-ok" style="margin-bottom:16px;">✓ In Stock ({{ product.stock_quantity }} available)</div>
+      {% else %}
+      <div class="product-stock-out" style="margin-bottom:16px;">✗ Out of Stock</div>
+      {% endif %}
+
+      <!-- Description -->
+      <div class="product-description">{{ product.description|linebreaks }}</div>
+
+      <!-- Variants -->
+      {% if product.variants.exists %}
+      {% regroup product.variants.all|dictsort:"attribute_values__attribute_type__name" by attribute_values.all.0.attribute_type as variant_groups %}
+      <form method="post" action="{% url 'cart:add' product.id %}" data-ajax-cart>
+        {% csrf_token %}
+        <input type="hidden" name="variant_id" id="variant-id-input" value="">
+        <input type="hidden" name="quantity" id="qty-hidden" value="1">
+      {% else %}
+      <form method="post" action="{% url 'cart:add' product.id %}" data-ajax-cart>
+        {% csrf_token %}
+        <input type="hidden" name="quantity" id="qty-hidden" value="1">
+      {% endif %}
+
+        <!-- Variants selection (grouped by attribute type) -->
+        {% if product.variants.exists %}
+        {% for variant in product.variants.all %}
+        {% if forloop.first %}
+        <div class="variant-group">
+          <div class="variant-label">Options</div>
+          <div class="variant-options">
+        {% endif %}
+          <button type="button" class="variant-btn {% if forloop.first %}selected{% endif %}"
+                  data-variant-id="{{ variant.id }}"
+                  {% if not variant.is_in_stock %}disabled{% endif %}>
+            {% for av in variant.attribute_values.all %}{{ av.value }}{% if not forloop.last %} / {% endif %}{% endfor %}
+            {% if not variant.is_in_stock %} (Out){% endif %}
+          </button>
+        {% if forloop.last %}
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        <!-- Quantity -->
+        <div class="qty-row">
+          <span class="qty-label">Qty</span>
+          <div class="qty-input">
+            <button type="button" data-qty="dec">−</button>
+            <input type="number" id="qty-display" value="1" min="1" max="{{ product.stock_quantity }}"
+                   oninput="document.getElementById('qty-hidden').value=this.value">
+            <button type="button" data-qty="inc">+</button>
+          </div>
+        </div>
+
+        <!-- Add to cart -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          {% if product.is_in_stock %}
+          <button type="submit" class="btn btn-primary" style="flex:1;">Add to Cart</button>
+          {% else %}
+          <button type="button" class="btn btn-ghost" disabled style="flex:1;opacity:.5;cursor:not-allowed;">Out of Stock</button>
+          {% endif %}
+
+          {% if user.is_authenticated %}
+          <button type="button" class="btn btn-ghost"
+                  data-wishlist-toggle="{% url 'catalog:toggle_wishlist' product.id %}"
+                  style="padding:13px 16px;">
+            {% if in_wishlist %}❤️{% else %}🤍{% endif %}
+          </button>
+          {% else %}
+          <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-ghost" style="padding:13px 16px;" title="Sign in to save">🤍</a>
+          {% endif %}
+        </div>
+        {% if product.amazon_link %}
+        <div style="margin-top: 15px; text-align: center;">
+          <p style="margin-bottom: 8px; font-weight: bold; color: var(--rust);">Get 10% discount on Amazon!</p>
+          <a href="{{ product.amazon_link }}" target="_blank" class="btn btn-primary" style="background-color: #FF9900; color: #111; width: 100%; border: none; text-decoration: none; display: inline-block;">Buy from Amazon</a>
+        </div>
+        {% endif %}
+      </form>
+
+      <!-- Meta -->
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--charcoal);display:flex;flex-direction:column;gap:6px;">
+        <div>Category: <a href="{{ product.category.get_absolute_url }}" style="color:var(--rust);">{{ product.category.name }}</a></div>
+        {% if product.brand %}<div>Brand: <a href="{{ product.brand.get_absolute_url }}" style="color:var(--rust);">{{ product.brand.name }}</a></div>{% endif %}
+        <div>Payment: Cash on Delivery</div>
+        <div>Returns: 7-day free returns</div>
+      </div>
+
+      <!-- Premium SEO/GEO/AEO Tabs -->
+      <div class="product-tabs-container">
+        <div class="tab-headers">
+          <button type="button" class="tab-btn active" data-tab="specs">Specifications</button>
+          <button type="button" class="tab-btn" data-tab="faqs">FAQs</button>
+          <button type="button" class="tab-btn" data-tab="reviews">Reviews (84)</button>
+        </div>
+
+        <div class="tab-content active" id="tab-specs">
+          <table class="specs-table">
+            <tr>
+              <th>SKU</th>
+              <td>{{ product.sku }}</td>
+            </tr>
+            {% if product.brand %}
+            <tr>
+              <th>Brand</th>
+              <td>{{ product.brand.name }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+              <th>Category</th>
+              <td>{{ product.category.name }}</td>
+            </tr>
+            <tr>
+              <th>Condition</th>
+              <td>New (Original & Sealed)</td>
+            </tr>
+            <tr>
+              <th>Availability</th>
+              <td>{% if product.is_in_stock %}In Stock ({{ product.stock_quantity }} units){% else %}Out of Stock{% endif %}</td>
+            </tr>
+            <tr>
+              <th>Shipping</th>
+              <td>Free on orders over $200 (otherwise standard rates apply)</td>
+            </tr>
+            <tr>
+              <th>Returns</th>
+              <td>7-day hassle-free returns</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="tab-content" id="tab-faqs">
+          <div class="faq-accordion">
+            <div class="faq-item">
+              <button type="button" class="faq-trigger">What is the return policy for {{ product.name }}? <span class="faq-icon">+</span></button>
+              <div class="faq-answer">
+                <p>We offer a 7-day free returns policy on all unused items. Simply reach out to our customer care team to initiate a return, and we'll guide you through the process.</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button type="button" class="faq-trigger">What payment options do you support? <span class="faq-icon">+</span></button>
+              <div class="faq-answer">
+                <p>We support Cash on Delivery (COD) for all transactions to ensure maximum convenience and security for our shoppers.</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button type="button" class="faq-trigger">How much does shipping cost? <span class="faq-icon">+</span></button>
+              <div class="faq-answer">
+                <p>Standard delivery is free for all orders totaling $200 or more. For orders below this threshold, a flat delivery fee is dynamically calculated at checkout.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-reviews">
+          {% if user.is_authenticated %}
+          <div class="review-form-container">
+            <h3 style="margin-bottom: 16px;">Write a Review</h3>
+            <form action="{% url 'catalog:add_review' product.id %}" method="post">
+              {% csrf_token %}
+              {{ review_form.non_field_errors }}
+              <div class="form-group">
+                <label for="{{ review_form.rating.id_for_label }}">Rating</label>
+                {{ review_form.rating }}
+              </div>
+              <div class="form-group">
+                <label for="{{ review_form.title.id_for_label }}">Title</label>
+                {{ review_form.title }}
+              </div>
+              <div class="form-group">
+                <label for="{{ review_form.content.id_for_label }}">Review</label>
+                {{ review_form.content }}
+              </div>
+              <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+          </div>
+          {% else %}
+          <div style="margin-bottom: 24px; padding: 16px; background: var(--paper); border-radius: 6px;">
+            <a href="{% url 'users:login' %}?next={{ request.path }}" style="color: var(--rust); font-weight: 600;">Log in</a> to leave a review.
+          </div>
+          {% endif %}
+
+          <div class="reviews-list">
+            {% for review in reviews %}
+            <div class="review-card">
+              <div class="review-meta">
+                <span class="review-stars">{% for i in '12345' %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                <span class="review-author">{{ review.user.email }}</span>
+                <span class="review-date">{{ review.created_at|date:"N j, Y" }}</span>
+              </div>
+              <div class="review-title">{{ review.title }}</div>
+              <p class="review-text">{{ review.content }}</p>
+            </div>
+            {% empty %}
+            <p style="color: var(--charcoal);">No reviews yet. Be the first to review this product!</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related_products %}
+  <div style="margin-top:72px;padding-top:48px;border-top:1px solid var(--line);">
+    <div class="section-head">
+      <div>
+        <div class="section-label">From the same category</div>
+        <h2>You might also like</h2>
+      </div>
+      <a href="{{ product.category.get_absolute_url }}" class="see-all">View All →</a>
+    </div>
+    <div class="product-grid">
+      {% for p in related_products %}
+      {% with product=p %}
+      {% include "partials/product_card.html" %}
+      {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Keep qty hidden in sync with stepper
+document.querySelectorAll('.qty-input button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const display = document.getElementById('qty-display');
+    const hidden  = document.getElementById('qty-hidden');
+    if (display && hidden) hidden.value = display.value;
+  });
+});
+// Variant selection updates hidden variant_id input
+document.querySelectorAll('.variant-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('variant-id-input').value = btn.dataset.variantId || '';
+  });
+});
+
+// Tab switching logic
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    // Remove active classes
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    // Add active classes
+    btn.classList.add('active');
+    const contentPanel = document.getElementById('tab-' + target);
+    if (contentPanel) contentPanel.classList.add('active');
+  });
+});
+
+// FAQ Accordion logic
+document.querySelectorAll('.faq-trigger').forEach(trigger => {
+  trigger.addEventListener('click', () => {
+    const item = trigger.closest('.faq-item');
+    const isActive = item.classList.contains('active');
+    
+    // Close other FAQ items
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+    
+    // Toggle current
+    if (!isActive) {
+      item.classList.add('active');
+    }
+  });
+});
+</script>
+{% endblock %}

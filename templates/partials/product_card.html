@@ -1,0 +1,51 @@
+{% load static %}
+<div class="product-card">
+  <a href="{{ product.get_absolute_url }}" class="product-card-image">
+    {% if product.primary_image %}
+      <img src="{{ product.primary_image.image.url }}" alt="{{ product.primary_image.alt_text }}" loading="lazy">
+    {% else %}
+      <span class="no-image">🛍</span>
+    {% endif %}
+    {% if product.discount_percent %}
+      <span class="badge-sale">-{{ product.discount_percent }}%</span>
+    {% elif product.created_at|timesince|slice:":2" == "0 " %}
+      <span class="badge-new">New</span>
+    {% endif %}
+  </a>
+  <div class="product-card-body">
+    {% if product.brand %}
+    <div class="product-card-brand">
+      <a href="{{ product.brand.get_absolute_url }}">{{ product.brand.name }}</a>
+    </div>
+    {% endif %}
+    <div class="product-card-name">
+      <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+    </div>
+    <div class="product-card-footer">
+      <div>
+        <span class="product-price">${{ product.price }}</span>
+        {% if product.compare_at_price %}
+        <span class="compare-price">${{ product.compare_at_price }}</span>
+        {% endif %}
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        {% if user.is_authenticated %}
+        <button class="btn-wishlist {% if product.pk in wishlist_ids %}active{% endif %}"
+                data-wishlist-toggle="{% url 'catalog:toggle_wishlist' product.id %}"
+                title="{% if product.pk in wishlist_ids %}Remove from wishlist{% else %}Add to wishlist{% endif %}">
+          {% if product.pk in wishlist_ids %}❤️{% else %}🤍{% endif %}
+        </button>
+        {% endif %}
+        {% if product.is_in_stock %}
+        <form method="post" action="{% url 'cart:add' product.id %}" data-ajax-cart>
+          {% csrf_token %}
+          <input type="hidden" name="quantity" value="1">
+          <button type="submit" class="btn-add-cart">Add</button>
+        </form>
+        {% else %}
+        <span style="font-size:10px;color:var(--charcoal);font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Out of stock</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

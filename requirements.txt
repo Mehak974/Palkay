@@ -1,0 +1,34 @@
+# ── Core ─────────────────────────────────────────────────────────
+Django>=4.2,<5.0
+Pillow>=10.0
+
+# ── Authentication ────────────────────────────────────────────────
+argon2-cffi>=23.1              # Argon2 password hashing
+
+# ── Database ──────────────────────────────────────────────────────
+psycopg2-binary>=2.9           # PostgreSQL adapter
+dj-database-url>=2.1           # Parse DATABASE_URL env var
+
+# ── Cache / Performance ───────────────────────────────────────────
+django-redis>=5.4              # Redis cache backend
+redis>=5.0                     # Redis client
+
+# ── Static Files ──────────────────────────────────────────────────
+whitenoise>=6.6                # Serve static files from Django (+ Brotli)
+
+# ── Media Storage (S3) ───────────────────────────────────────────
+django-storages>=1.14
+boto3>=1.28
+
+# ── Forms ─────────────────────────────────────────────────────────
+django-crispy-forms>=2.0
+crispy-bootstrap5>=0.7
+
+# ── Config ────────────────────────────────────────────────────────
+python-decouple>=3.8           # .env file management
+
+# ── Web Server ───────────────────────────────────────────────────
+gunicorn>=21.2
+
+# ── Cloudflare Setup Script (optional) ───────────────────────────
+requests>=2.31                 # Used by cloudflare_setup.py

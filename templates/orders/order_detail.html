@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Order {{ order.order_number }} | Palkay{% endblock %}
+
+{% block content %}
+<div class="account-wrap">
+  {% include "partials/account_sidebar.html" %}
+  <div class="account-main">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <a href="{% url 'orders:list' %}" style="font-size:12px;color:var(--charcoal);display:inline-flex;align-items:center;gap:4px;margin-bottom:10px;">← Back to orders</a>
+        <h1 style="font-size:28px;">Order <span style="font-style:italic;">#{{ order.order_number }}</span></h1>
+        <div style="font-size:12px;color:var(--charcoal);margin-top:4px;">Placed {{ order.created_at|date:"F d, Y, g:i A" }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="order-status-badge status-{{ order.status }}" style="font-size:12px;padding:6px 14px;">{{ order.get_status_display }}</span>
+        {% if order.can_be_cancelled_by_user %}
+        <a href="{% url 'orders:cancel' order.order_number %}" class="btn btn-ghost btn-sm" style="color:var(--error);border-color:var(--error);">Cancel Order</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:32px;align-items:start;" class="order-detail-grid">
+      <div>
+        <!-- Items -->
+        <div style="border:1px solid var(--line);margin-bottom:24px;">
+          {% for item in items %}
+          <div style="display:flex;gap:14px;padding:20px;border-bottom:1px solid var(--line);">
+            <div style="width:64px;height:64px;background:var(--panel);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;">
+              {% if item.product and item.product.primary_image %}
+              <img src="{{ item.product.primary_image.image.url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+              {% else %}🛍{% endif %}
+            </div>
+            <div style="flex:1;">
+              {% if item.product %}
+              <a href="{{ item.product.get_absolute_url }}" style="font-weight:600;font-size:14px;">{{ item.product_name }}</a>
+              {% else %}
+              <span style="font-weight:600;font-size:14px;">{{ item.product_name }}</span>
+              {% endif %}
+              {% if item.variant_attributes %}
+              <div style="font-size:11px;color:var(--charcoal);margin-top:2px;">
+                {% for k, v in item.variant_attributes.items %}{{ k }}: {{ v }}{% if not forloop.last %}, {% endif %}{% endfor %}
+              </div>
+              {% endif %}
+              <div style="font-size:12px;color:var(--charcoal);margin-top:4px;">Qty: {{ item.quantity }} × ${{ item.product_price }}</div>
+            </div>
+            <div style="font-weight:700;color:var(--rust);white-space:nowrap;">${{ item.line_total }}</div>
+          </div>
+          {% endfor %}
+          <div style="padding:16px 20px;display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--charcoal);"><span>Subtotal</span><span>${{ order.subtotal }}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--charcoal);"><span>Shipping</span><span>{% if order.shipping_fee == 0 %}Free{% else %}${{ order.shipping_fee }}{% endif %}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;border-top:1px solid var(--line);padding-top:10px;margin-top:4px;"><span>Total</span><span style="color:var(--rust);">${{ order.total }}</span></div>
+          </div>
+        </div>
+
+        <!-- Status history -->
+        <div>
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;">Order Timeline</div>
+          <div>
+            {% for h in history %}
+            <div class="order-history-item">
+              <div class="order-history-dot"></div>
+              <div>
+                <div style="font-weight:700;font-size:13px;">{{ h.get_status_display }}</div>
+                <div style="font-size:11px;color:var(--charcoal);margin-top:2px;">{{ h.changed_at|date:"M d, Y, g:i A" }}</div>
+                {% if h.note %}<div style="font-size:12px;color:var(--charcoal);margin-top:4px;">{{ h.note }}</div>{% endif %}
+                {% if h.expected_delivery %}<div style="font-size:12px;color:var(--charcoal);margin-top:3px;">Expected by {{ h.expected_delivery|date:"M d, Y" }}</div>{% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div>
+        <div style="background:var(--panel);padding:24px;margin-bottom:20px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--charcoal);margin-bottom:12px;">Delivery Address</div>
+          <div style="font-weight:700;margin-bottom:4px;">{{ order.delivery_address.full_name }}</div>
+          <div style="font-size:13px;color:var(--charcoal);line-height:1.7;">
+            {{ order.delivery_address.address_line_1 }}<br>
+            {% if order.delivery_address.address_line_2 %}{{ order.delivery_address.address_line_2 }}<br>{% endif %}
+            {{ order.delivery_address.city }}, {{ order.delivery_address.state }} {{ order.delivery_address.zip_code }}<br>
+            {{ order.delivery_address.phone }}
+          </div>
+        </div>
+
+        <div style="background:var(--panel);padding:24px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--charcoal);margin-bottom:12px;">Payment</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;">
+            <span>💵</span> Cash on Delivery
+          </div>
+          {% if order.special_instructions %}
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--charcoal);margin-bottom:6px;">Notes</div>
+            <div style="font-size:12px;color:var(--charcoal);">{{ order.special_instructions }}</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

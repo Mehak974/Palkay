@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | Palkay{% endblock %}
+{% block content %}
+<div class="account-wrap">
+  {% include "partials/account_sidebar.html" %}
+  <div class="account-main">
+    <h1>{{ title }}</h1>
+    <div class="form-card" style="max-width:540px;">
+      <form method="post">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          {% for field in form %}
+          <div class="form-group" style="{% if field.name == 'address_line_1' or field.name == 'address_line_2' or field.name == 'full_name' or field.name == 'phone' %}grid-column:span 2;{% endif %}">
+            <label class="form-label">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-hint">{{ field.help_text }}</div>{% endif %}
+            {% if field.errors %}<div class="form-error">{{ field.errors.0 }}</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <div style="display:flex;gap:12px;margin-top:8px;">
+          <button type="submit" class="btn btn-primary">Save Address</button>
+          <a href="{% url 'users:addresses' %}" class="btn btn-ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

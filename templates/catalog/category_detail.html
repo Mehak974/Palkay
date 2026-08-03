@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} | Palkay{% endblock %}
+{% block meta_description %}{{ category.seo_meta_description|default:category.description|truncatechars:155 }}{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb" style="padding-top:0;padding-bottom:16px;">
+      <a href="{% url 'pages:home' %}">Home</a>
+      <span class="breadcrumb-sep">›</span>
+      {% if category.parent %}<a href="{{ category.parent.get_absolute_url }}">{{ category.parent.name }}</a><span class="breadcrumb-sep">›</span>{% endif %}
+      <span>{{ category.name }}</span>
+    </div>
+    <div class="section-label">Category</div>
+    <h1>{{ category.name }}</h1>
+    {% if category.description %}<p class="page-hero-sub" style="max-width:600px;margin-top:10px;">{{ category.description }}</p>{% endif %}
+  </div>
+</div>
+
+<div class="catalog-wrap" style="max-width:80%;margin:0 auto;padding:32px 40px 80px;">
+  <!-- Subcategories -->
+  {% if category.active_children.exists %}
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;">
+    {% for sub in category.active_children %}
+    <a href="{{ sub.get_absolute_url }}" class="btn btn-ghost btn-sm">{{ sub.name }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Sort -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line);" class="sort-bar-container">
+    <span style="font-size:13px;color:var(--charcoal);" class="desktop-sort-label">{{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }}</span>
+    <form method="get" style="display:flex;gap:4px;flex-wrap:wrap;margin:0;" id="sort-form">
+      <!-- Desktop Inline Sort Buttons -->
+      <div class="desktop-sort-buttons" style="display:flex;gap:4px;">
+        {% for val, label in sort_options.items %}
+        <button type="submit" name="sort" value="{{ val }}"
+                style="padding:6px 12px;font-size:11px;font-family:'Sora',sans-serif;border:1px solid var(--line);background:{% if sort == val %}var(--ink){% else %}transparent{% endif %};color:{% if sort == val %}#fff{% else %}var(--charcoal){% endif %};cursor:pointer;">
+          {{ label }}
+        </button>
+        {% endfor %}
+      </div>
+
+      <!-- Mobile Dropdown Selector -->
+      <select name="sort" onchange="this.form.submit()" class="mobile-sort-select"
+              style="display:none;padding:8px 24px 8px 12px;font-size:11px;font-family:'Sora',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;border-radius:2px;outline:none;appearance:none;-webkit-appearance:none;">
+        {% for val, label in sort_options.items %}
+        <option value="{{ val }}" {% if sort == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if page_obj.object_list %}
+  <div class="product-grid">
+    {% for product in page_obj %}
+    {% include "partials/product_card.html" %}
+    {% endfor %}
+  </div>
+  {% if page_obj.has_other_pages %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&sort={{ sort }}">‹</a>{% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}<span class="current">{{ num }}</span>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<a href="?page={{ num }}&sort={{ sort }}">{{ num }}</a>{% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&sort={{ sort }}">›</a>{% endif %}
+  </div>
+  {% endif %}
+  {% else %}
+  <div class="cart-empty"><div style="font-size:48px;margin-bottom:16px;">📦</div><h2>No products yet</h2><p style="color:var(--charcoal);">Check back soon.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile | Palkay{% endblock %}
+{% block content %}
+<div class="account-wrap">
+  {% include "partials/account_sidebar.html" %}
+  <div class="account-main">
+    <h1>Edit Profile</h1>
+    <div class="form-card" style="max-width:520px;">
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="form-error">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <div style="margin-top:4px;">
+          <div class="form-group" style="margin-bottom:6px;">
+            <label class="form-label">Email address</label>
+            <input type="email" value="{{ request.user.email }}" class="form-input" disabled style="opacity:.6;cursor:not-allowed;">
+            <div class="form-hint">Email cannot be changed after account creation.</div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:8px;">Save Changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

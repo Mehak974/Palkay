@@ -1,0 +1,20 @@
+{% load static %}
+<aside class="account-sidebar">
+  <div class="sidebar-user">
+    <div style="width:52px;height:52px;background:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-size:20px;margin-bottom:12px;">
+      {{ request.user.get_short_name|first|upper }}
+    </div>
+    <div class="sidebar-user-name">{{ request.user.get_full_name }}</div>
+    <div class="sidebar-user-email">{{ request.user.email }}</div>
+  </div>
+
+  <ul class="sidebar-nav">
+    <li><a href="{% url 'users:dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+    <li><a href="{% url 'orders:list' %}" {% if 'orders' in request.resolver_match.app_name %}class="active"{% endif %}>My Orders</a></li>
+    <li><a href="{% url 'users:wishlist' %}" {% if request.resolver_match.url_name == 'wishlist' %}class="active"{% endif %}>Wishlist</a></li>
+    <li><a href="{% url 'users:addresses' %}" {% if request.resolver_match.url_name == 'addresses' %}class="active"{% endif %}>Addresses</a></li>
+    <li><a href="{% url 'users:profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}>Edit Profile</a></li>
+    <li><a href="{% url 'users:change_password' %}" {% if request.resolver_match.url_name == 'change_password' %}class="active"{% endif %}>Change Password</a></li>
+    <li><a href="{% url 'users:logout' %}" style="color:var(--rust);">Sign Out</a></li>
+  </ul>
+</aside>

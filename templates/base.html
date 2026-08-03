@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Palkay — Good taste shouldn't cost more{% endblock %}</title>
+<meta name="description" content="{% block meta_description %}Curated everyday essentials — fashion, home, beauty, wellness — tested for quality and priced so you never have to choose.{% endblock %}">
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:site_name" content="Palkay">
+<meta property="og:type" content="{% block og_type %}website{% endblock %}">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:title" content="{% block og_title %}Palkay — Good taste shouldn't cost more{% endblock %}">
+<meta property="og:description" content="{% block og_description %}Curated everyday essentials — fashion, home, beauty, wellness — tested for quality and priced so you never have to choose.{% endblock %}">
+<meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-default.jpg' %}{% endblock %}">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:title" content="{% block twitter_title %}Palkay — Good taste shouldn't cost more{% endblock %}">
+<meta name="twitter:description" content="{% block twitter_description %}Curated everyday essentials — fashion, home, beauty, wellness — tested for quality and priced so you never have to choose.{% endblock %}">
+<meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-default.jpg' %}{% endblock %}">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/palkay.css' %}">
+{% block extra_css %}{% endblock %}
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4938022536946038"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- ═══ NAV ══════════════════════════════════════════════════════ -->
+<header>
+  <nav class="site-nav">
+    <a href="{% url 'pages:home' %}" class="nav-logo" style="color:#000; text-transform:uppercase;">PAL<span style="color:#C75D3A">K</span>AY</a>
+
+    <ul class="nav-links">
+      {% for cat in nav_categories %}
+      <li {% if request.resolver_match.kwargs.slug == cat.slug %}class="active"{% endif %}>
+        <a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+      </li>
+      {% endfor %}
+      <li><a href="{% url 'blog:list' %}">Blog</a></li>
+      <li><a href="{% url 'catalog:product_list' %}?sort=-created_at">New In</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <form class="nav-search-form" action="{% url 'catalog:search' %}" method="get">
+        <input type="search" name="q" placeholder="Search…" value="{{ request.GET.q|default:'' }}">
+        <button type="submit">🔍</button>
+      </form>
+
+      {% if user.is_authenticated %}
+        <a href="{% url 'users:dashboard' %}">Account</a>
+      {% else %}
+        <a href="{% url 'users:login' %}">Sign in</a>
+      {% endif %}
+
+      <a href="{% url 'cart:detail' %}" class="nav-bag">
+        Cart
+        <span class="badge cart-count-badge">{{ cart_count }}</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<!-- ═══ MESSAGES ═════════════════════════════════════════════════ -->
+{% if messages %}
+<div class="messages-bar">
+  {% for message in messages %}
+  <div class="message-item {{ message.tags }}">
+    <span>{{ message }}</span>
+    <button class="message-close">✕</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ═══ CONTENT ══════════════════════════════════════════════════ -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo" style="color:#000; text-transform:uppercase;">PAL<span style="color:#C75D3A">K</span>AY</div>
+      <p>Premium goods, honestly priced. We curate so you don't have to dig — quality you can trust, delivered to your door.</p>
+      <div class="footer-socials">
+        <span title="Facebook">📘</span>
+        <span title="Instagram">📸</span>
+        <span title="TikTok">🎵</span>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Shop</h5>
+      <ul>
+        <li><a href="{% url 'catalog:product_list' %}?sort=-created_at">New Arrivals</a></li>
+        <li><a href="{% url 'catalog:product_list' %}?sort=-order_count">Best Sellers</a></li>
+        {% for cat in nav_categories %}
+        <li><a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Support</h5>
+      <ul>
+        <li><a href="{% url 'orders:list' %}">Track My Order</a></li>
+        <li><a href="{% url 'pages:contact' %}">Contact Us</a></li>
+        <li><a href="{% url 'pages:cms_page' slug='returns-policy' %}">Refund &amp; Return Policy</a></li>
+        <li><a href="{% url 'pages:cms_page' slug='faq' %}">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="{% url 'pages:about' %}">About Palkay</a></li>
+        <li><a href="{% url 'pages:contact' %}">Contact</a></li>
+        <li><a href="{% url 'pages:cms_page' slug='privacy-policy' %}">Privacy Policy</a></li>
+        <li><a href="{% url 'pages:cms_page' slug='terms-of-service' %}">Terms &amp; Conditions</a></li>
+        <li><a href="{% url 'pages:cms_page' slug='cookies-policy' %}">Cookies Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Palkay. All rights reserved.</span>
+    <div class="footer-legal">
+      <a href="{% url 'pages:cms_page' slug='privacy-policy' %}">Privacy Policy</a>
+      <a href="{% url 'pages:cms_page' slug='terms-of-service' %}">Terms &amp; Conditions</a>
+    </div>
+  </div>
+</footer>
+
+<button id="scroll-to-top" style="position:fixed;bottom:24px;left:24px;width:42px;height:42px;border-radius:50%;background:var(--ink);color:#fff;border:none;box-shadow:0 4px 16px rgba(0,0,0,0.15);cursor:pointer;z-index:999;display:none;align-items:center;justify-content:center;font-size:18px;transition:opacity 0.3s, transform 0.3s;opacity:0;transform:translateY(10px);outline:none;">
+  ↑
+</button>
+
+{% load static %}
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

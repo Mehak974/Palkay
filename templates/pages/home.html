@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Palkay — Good taste shouldn't cost more{% endblock %}
+
+{% block content %}
+
+<!-- JSON-LD Structured Data for Organization & Search -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Palkay",
+  "url": "{{ request.scheme }}://{{ request.get_host }}",
+  "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-default.jpg' %}",
+  "description": "Curated everyday essentials — fashion, home, beauty, wellness — tested for quality and priced so you never have to choose.",
+  "sameAs": [
+    "https://facebook.com/palkay",
+    "https://instagram.com/palkay",
+    "https://tiktok.com/@palkay"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Palkay",
+  "url": "{{ request.scheme }}://{{ request.get_host }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ request.scheme }}://{{ request.get_host }}{% url 'catalog:search' %}?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<!-- ═══ BRAND MARQUEE ════════════════════════════════════════════ -->
+<section class="marquee-bar">
+  <div class="marquee-track">
+    {% for brand in brands %}
+    <a href="{{ brand.get_absolute_url }}" class="brand-item">
+      <div class="brand-dot"></div>{{ brand.name }}
+    </a>
+    {% empty %}
+    <div class="brand-item">
+      <div class="brand-dot"></div>Bexley
+    </div>
+    <div class="brand-item">
+      <div class="brand-dot"></div>Nature's Blend
+    </div>
+    <div class="brand-item">
+      <div class="brand-dot"></div>LYNX
+    </div>
+    <div class="brand-item">
+      <div class="brand-dot"></div>Alexander Handcraft Mills
+    </div>
+    <div class="brand-item">
+      <div class="brand-dot"></div>Med-Q
+    </div>
+    {% endfor %}
+    {% for brand in brands %}
+    <a href="{{ brand.get_absolute_url }}" class="brand-item">
+      <div class="brand-dot"></div>{{ brand.name }}
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ═══ HERO ══════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Premium &amp; Considered</div>
+    <h1>Good taste<br>shouldn't <em>cost</em><br>more.</h1>
+    <p class="hero-desc">Curated everyday essentials — fashion, home, beauty, wellness — tested for quality and priced
+      so you never have to choose between the two.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="{% url 'catalog:product_list' %}?sort=-created_at" class="btn btn-primary">Shop New Arrivals →</a>
+      <a href="{% url 'pages:about' %}" class="btn btn-ghost">Our Story</a>
+    </div>
+  </div>
+
+  <div class="hero-visual" style="background:none;padding:0;overflow:visible;aspect-ratio:auto;display:flex;justify-content:center;align-items:center;">
+    <img src="{% static 'img/hero_lifestyle.png' %}" alt="Palkay Lifestyle"
+         style="width:85%;height:auto;object-fit:cover;border-radius:60% 40% 30% 70% / 60% 30% 70% 40%;box-shadow:0 12px 32px rgba(0,0,0,0.06);border:1px solid var(--line);">
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<!-- ═══ CATEGORIES ═══════════════════════════════════════════════ -->
+<section class="categories">
+  <div class="section-head">
+    <div>
+      <div class="section-label">Browse by Category</div>
+      <h2>Every Corner<br>of Your Life</h2>
+    </div>
+    <a href="{% url 'catalog:product_list' %}" class="see-all">Shop All →</a>
+  </div>
+
+  {% if categories %}
+  <div class="cat-grid">
+    {% for cat in categories %}
+    <a href="{{ cat.get_absolute_url }}" class="cat-cell">
+      {% if cat.slug == 'fashion' %}
+      <img src="{% static 'img/cat_fashion.png' %}" alt="{{ cat.name }}" class="cat-bg">
+      {% elif cat.slug == 'home-decor' %}
+      <img src="{% static 'img/cat_home_decor.png' %}" alt="{{ cat.name }}" class="cat-bg">
+      {% elif cat.slug == 'beauty-cosmetics' %}
+      <img src="{% static 'img/cat_beauty_cosmetics.png' %}" alt="{{ cat.name }}" class="cat-bg">
+      {% elif cat.slug == 'pet-care' %}
+      <img src="{% static 'img/cat_pet_care.png' %}" alt="{{ cat.name }}" class="cat-bg">
+      {% elif cat.slug == 'medicine-supplements' %}
+      <img src="{% static 'img/cat_medicine_supplements.png' %}" alt="{{ cat.name }}" class="cat-bg">
+      {% elif cat.slug == 'tools' %}
+      <img src="{% static 'img/cat_tools.png' %}" alt="{{ cat.name }}" class="cat-bg">
+      {% else %}
+        {% if cat.image %}
+        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="cat-bg">
+        {% endif %}
+      {% endif %}
+      <div class="cat-name">{{ cat.name }}</div>
+      <div class="cat-count">{{ cat.products.count }} items</div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+
+<div class="rule"></div>
+
+<!-- ═══ NEW ARRIVALS EDITORIAL GRID ══════════════════════════════ -->
+<section class="recently">
+  <div style="padding-top:72px;">
+    <div class="section-head">
+      <div>
+        <div class="section-label">Fresh Drop</div>
+        <h2>Recently Added</h2>
+      </div>
+      <a href="{% url 'catalog:product_list' %}?sort=-created_at" class="see-all">View All →</a>
+    </div>
+
+    <div class="edit-grid">
+      {% for product in new_arrivals %}
+      {% if forloop.first %}
+      <!-- Feature card (first product, spans 2 rows) -->
+      <a href="{{ product.get_absolute_url }}" class="edit-card" style="text-decoration:none;color:inherit;">
+        {% if product.primary_image %}
+        <img src="{{ product.primary_image.image.url }}" alt="{{ product.primary_image.alt_text }}"
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;">
+        {% else %}
+        <div class="edit-card-icon">{{ product.category.name|first }}</div>
+        {% endif %}
+        <div class="card-name">{{ product.name }}</div>
+        <div class="card-price">${{ product.price }}
+          {% if product.compare_at_price %}<span style="font-size:11px;font-weight:400;color:rgba(255,255,255,0.7);text-decoration:line-through;margin-left:4px;">${{ product.compare_at_price }}</span>{% endif %}
+        </div>
+      </a>
+      {% elif forloop.counter <= 4 %} <a href="{{ product.get_absolute_url }}" class="edit-card"
+        style="text-decoration:none;color:inherit;">
+        {% if product.primary_image %}
+        <img src="{{ product.primary_image.image.url }}" alt="{{ product.primary_image.alt_text }}"
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.45;">
+        {% else %}
+        <div class="edit-card-icon">🛍</div>
+        {% endif %}
+        <div class="card-name">{{ product.name }}</div>
+        <div class="card-price">${{ product.price }}</div>
+        </a>
+        {% endif %}
+        {% empty %}
+        <div class="edit-card"
+          style="grid-column:span 3;grid-row:span 2;align-items:center;justify-content:center;min-height:300px;">
+          <div style="text-align:center;opacity:.4;">
+            <div style="font-size:48px;margin-bottom:12px;">📦</div>
+            <p>Products coming soon</p>
+          </div>
+        </div>
+        {% endfor %}
+
+        <!-- Browse all card (dark) -->
+        <div class="edit-card edit-card-dark">
+          <div
+            style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px;opacity:.08;">
+            🛍</div>
+          <div class="card-cat">New Arrivals</div>
+          <div class="card-name">Discover hundreds<br>of new products</div>
+          <div style="margin-bottom:12px;"></div>
+          <a href="{% url 'catalog:product_list' %}" class="card-link">Browse All →</a>
+        </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHY PALKAY ════════════════════════════════════════════════ -->
+<section class="why-section">
+  <div class="why-inner">
+    <div class="why-image-block" style="position:relative;">
+      <div class="why-image-main">
+        <img src="{% static 'img/why_palkay.png' %}" alt="Why Palkay" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+        <div
+          style="position:absolute;bottom:24px;left:24px;right:24px;background:#fff;padding:16px 20px;box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:2;">
+          <div
+            style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--charcoal);margin-bottom:5px;">
+            Overall Rating</div>
+          <div style="font-family:'Fraunces',serif;font-size:26px;color:var(--ink);">4.9 / 5.0</div>
+          <div style="font-size:11px;color:var(--charcoal);margin-top:3px;">Based on 18,400+ reviews</div>
+        </div>
+      </div>
+      <div class="why-float">
+        <span class="big">12+</span>
+        <span class="label">Quality checks</span>
+      </div>
+    </div>
+    <div class="why-content">
+      <div class="section-label">Why Palkay</div>
+      <h2>We do the hard work. <em>You just shop.</em></h2>
+      <p class="why-desc">Every product on Palkay has been evaluated, tested, and priced with purpose. We cut the
+        middlemen so quality goods reach you at a price that makes sense.</p>
+      <ul class="why-list">
+        <li class="why-item">
+          <span class="why-num">01</span>
+          <div class="why-item-text">
+            <h4>Vetted Quality</h4>
+            <p>Every item passes a 12-point evaluation before listing. Substandard goods never make the cut.</p>
+          </div>
+        </li>
+        <li class="why-item">
+          <span class="why-num">02</span>
+          <div class="why-item-text">
+            <h4>Fair Pricing, Always</h4>
+            <p>We strip retail markup, not product integrity. What you pay reflects what a thing is actually worth.</p>
+          </div>
+        </li>
+        <li class="why-item">
+          <span class="why-num">03</span>
+          <div class="why-item-text">
+            <h4>Fast Dispatch</h4>
+            <p>Orders leave our warehouse within 24 hours. Most deliveries land within 2–4 business days.</p>
+          </div>
+        </li>
+        <li class="why-item">
+          <span class="why-num">04</span>
+          <div class="why-item-text">
+            <h4>Hassle-Free Returns</h4>
+            <p>Change your mind within 7 days. No forms, no questions — just a simple return label.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BEST SELLERS ══════════════════════════════════════════════ -->
+{% if best_sellers %}
+<section class="best-sellers" style="padding:0 40px 72px;max-width:80%;margin:0 auto;">
+  <div class="section-head" style="padding-top:72px;border-top:1px solid var(--line);">
+    <div>
+      <div class="section-label">Customer Favourites</div>
+      <h2>Best Sellers</h2>
+    </div>
+    <a href="{% url 'catalog:product_list' %}?sort=-order_count" class="see-all">View All →</a>
+  </div>
+  <div class="product-grid">
+    {% for product in best_sellers %}
+    {% include "partials/product_card.html" %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══ SUBSCRIBE BAND ════════════════════════════════════════════ -->
+<section class="discover-section">
+  <div class="discover-kicker">Stay in the Loop</div>
+  <h2>Discover better. <em>Every week.</em></h2>
+  <p class="discover-sub">Join 90,000+ shoppers who get early access to new drops, exclusive deals, and curated picks
+    delivered straight to their inbox.</p>
+  <div class="subscribe-row">
+    <input type="email" placeholder="Your email address">
+    <button type="button">Subscribe</button>
+  </div>
+  <div class="discover-perks">
+    <div class="discover-perk"><span>✓</span> Early drop access</div>
+    <div class="discover-perk"><span>✓</span> Members-only deals</div>
+    <div class="discover-perk"><span>✓</span> No spam, ever</div>
+  </div>
+</section>
+
+<!-- ═══ TRUST STRIP ═══════════════════════════════════════════════ -->
+<section class="trust-strip">
+  <div class="trust-inner">
+    <div class="trust-cell">
+      <div class="trust-icon">🚚</div>
+      <div class="trust-text">
+        <h4>Free Shipping Over $200</h4>
+        <p>No minimum fuss on qualifying orders. Tracked and insured.</p>
+      </div>
+    </div>
+    <div class="trust-cell">
+      <div class="trust-icon">↺</div>
+      <div class="trust-text">
+        <h4>7-Day Free Returns</h4>
+        <p>Return in original packaging within 7 days. Completely free.</p>
+      </div>
+    </div>
+    <div class="trust-cell">
+      <div class="trust-icon">🔒</div>
+      <div class="trust-text">
+        <h4>Secure Checkout</h4>
+        <p>SSL encrypted. Cash-on-delivery accepted.</p>
+      </div>
+    </div>
+    <div class="trust-cell">
+      <div class="trust-icon">💬</div>
+      <div class="trust-text">
+        <h4>7-Day Support</h4>
+        <p>Real humans via chat, email, or phone — including weekends.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TESTIMONIALS ══════════════════════════════════════════════ -->
+<section class="testi-section">
+  <div class="section-label" style="text-align:center;">Customer Stories</div>
+  <h2>Real people. Real opinions.</h2>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"Ordered the ceramic pan set on a Thursday — it arrived Saturday. Quality honestly exceeded
+        expectations. Palkay is now my first stop for home goods."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">👩</div>
+        <div>
+          <div class="testi-name">Ayesha Malik</div>
+          <div class="testi-location">Austin, TX</div>
+          <div class="testi-verified">✓ Verified Purchase</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">"Skeptical about buying online but the return policy gave me confidence. Turns out I didn't
+        need it — quality is phenomenal for the price."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">👨</div>
+        <div>
+          <div class="testi-name">Omar Farooq</div>
+          <div class="testi-location">Austin, TX</div>
+          <div class="testi-verified">✓ Verified Purchase</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★☆</div>
+      <p class="testi-quote">"The selection is genuinely impressive — not just big brands but some smaller labels I
+        hadn't discovered yet. Customer service sorted a minor issue within the hour."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">👩</div>
+        <div>
+          <div class="testi-name">Sana Qureshi</div>
+          <div class="testi-location">Austin, TX</div>
+          <div class="testi-verified">✓ Verified Purchase</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}About Palkay{% endblock %}
+{% block content %}
+
+<style>
+  .cat-stack-btn {
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    text-decoration: none;
+    text-align: center;
+    padding: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    border-radius: 2px;
+    transition: all .2s ease;
+  }
+  .cat-stack-btn:hover {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+    transform: translateY(-1px);
+  }
+</style>
+
+<!-- ═══ HEADER SECTION ════════════════════════════════════════════ -->
+<section style="background: var(--paper); padding: 80px 20px 48px; text-align: center;">
+  <div style="max-width: var(--content-max-width); margin: 0 auto;">
+    <div style="display: inline-block; background: var(--panel); border: 1px solid var(--line); color: var(--rust); padding: 6px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; border-radius: 2px; margin-bottom: 24px;">
+      Home &nbsp;&gt;&nbsp; About us
+    </div>
+    <h1 style="font-family: 'Fraunces', serif; font-size: 56px; color: var(--ink); margin-bottom: 24px; line-height: 1.1;">About Our Company</h1>
+    <p style="font-size: 16px; color: var(--charcoal); max-width: 720px; margin: 0 auto; line-height: 1.6;">
+      We value your feedback, questions, and inquiries. Whether you're looking for a product, need help with an order, or simply want to learn more about us, we're always here to assist you.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ WHO WE ARE SECTION ════════════════════════════════════════ -->
+<section style="background: #fff; padding: 64px 20px 80px;">
+  <div class="about-who-grid" style="max-width: var(--content-max-width); margin: 0 auto; display: grid; grid-template-columns: 1.2fr 2.5fr 1.3fr; gap: 48px; align-items: center;">
+    <!-- Left Oval Image -->
+    <div>
+      <img src="{% static 'img/about_who_we_are.png' %}" alt="Who We Are" 
+           style="width: 100%; height: 360px; object-fit: cover; border-radius: 180px; border: 1px solid var(--line);">
+    </div>
+    
+    <!-- Center Info -->
+    <div>
+      <div class="section-label" style="margin-bottom: 12px;">Who We Are</div>
+      <h2 style="font-family: 'Fraunces', serif; font-size: 42px; color: var(--ink); margin-bottom: 24px; line-height: 1.2;">
+        Your Trusted Store for <em style="color: var(--rust); font-style: italic;">Everyday Essentials</em>
+      </h2>
+      <p style="font-size: 14px; color: var(--charcoal); line-height: 1.8; margin-bottom: 16px;">
+        We are more than just a store — we're a team dedicated to bringing quality, affordability, and convenience together in one place.
+      </p>
+      <p style="font-size: 14px; color: var(--charcoal); line-height: 1.8; margin-bottom: 16px;">
+        From household items to daily-use essentials, our mission is to provide products that make your life easier and better.
+      </p>
+      <p style="font-size: 14px; color: var(--charcoal); line-height: 1.8;">
+        Join us as we continue to grow, improve, and deliver a shopping experience you can rely on. Discover the comfort of shopping where quality meets value — right here at our store.
+      </p>
+    </div>
+
+    <!-- Right Category Links Stack -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <a href="{% url 'catalog:product_list' %}?category=fashion" class="cat-stack-btn">Fashion</a>
+      <a href="{% url 'catalog:product_list' %}?category=medicine-supplements" class="cat-stack-btn">Supplements</a>
+      <a href="{% url 'catalog:product_list' %}?category=home-decor" class="cat-stack-btn">Home &amp; Decor</a>
+      <a href="{% url 'catalog:product_list' %}?category=beauty-cosmetics" class="cat-stack-btn">Beauty &amp; Cosmetics</a>
+      <a href="{% url 'catalog:product_list' %}?category=pet-care" class="cat-stack-btn">Pet Care</a>
+      <a href="{% url 'catalog:product_list' %}?category=tools" class="cat-stack-btn">Tools</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ OUR STORY SECTION (LIGHT BRAND THEME) ══════════════════════ -->
+<section style="background: var(--panel); color: var(--ink); padding: 80px 20px 96px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+  <div style="max-width: var(--content-max-width); margin: 0 auto;">
+    <div class="about-story-grid" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 48px; align-items: flex-end; margin-bottom: 48px;">
+      <div>
+        <div style="font-family: 'Sora', sans-serif; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--rust); font-weight: 700; margin-bottom: 12px;">Our Story</div>
+        <h2 style="font-family: 'Fraunces', serif; font-size: 48px; color: var(--ink); line-height: 1.1; margin: 0;">
+          Making Everyday Shopping Simple &amp; Reliable
+        </h2>
+      </div>
+      <div>
+        <p style="font-size: 14px; color: var(--charcoal); line-height: 1.8; margin: 0;">
+          Our goal is to bring you the best products at prices you'll love — with quality you can trust. We carefully select every item, ensuring durability, practicality, and satisfaction. Let us be part of your daily routine with a store you can count on.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHY CHOOSE US SECTION ═════════════════════════════════════ -->
+<section style="background: var(--paper); padding: 96px 20px 80px;">
+  <div class="about-why-grid" style="max-width: var(--content-max-width); margin: 0 auto; display: grid; grid-template-columns: 1.3fr 1.7fr; gap: 64px; align-items: center;">
+    <!-- Left Curved Image with Floating Badge -->
+    <div style="position: relative;">
+      <img src="{% static 'img/about_why_choose_us.png' %}" alt="Why Choose Us" 
+           style="width: 100%; height: 420px; object-fit: cover; border-radius: 200px 200px 0 200px; border: 1px solid var(--line);">
+      
+      <!-- Floating Badge -->
+      <div style="position: absolute; bottom: 24px; left: 24px; background: #fff; padding: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.08); border-radius: 4px; text-align: center;">
+        <div style="font-family: 'Fraunces', serif; font-size: 36px; font-weight: 800; color: var(--ink); line-height: 1;">6M+</div>
+        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--charcoal); margin-top: 6px; font-weight: 700;">Repeat Customers</div>
+      </div>
+    </div>
+
+    <!-- Right Content Info & Grid -->
+    <div>
+      <div class="section-label" style="margin-bottom: 12px;">Why choose us</div>
+      <h2 style="font-family: 'Fraunces', serif; font-size: 42px; color: var(--ink); margin-bottom: 20px; line-height: 1.2;">
+        Quality <span style="color: var(--rust);">•</span> Convenience <span style="color: var(--rust);">•</span> Trust
+      </h2>
+      <p style="font-size: 14px; color: var(--charcoal); line-height: 1.8; margin-bottom: 36px;">
+        We provide a wide range of essential products with modern features and dependable quality that fit every household and lifestyle.
+      </p>
+
+      <!-- 2x2 Info Grid -->
+      <div class="about-why-details" style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+        <div>
+          <h4 style="font-family: 'Fraunces', serif; font-size: 18px; color: var(--rust); margin-bottom: 8px;">Reliable Quality</h4>
+          <p style="font-size: 12.5px; color: var(--charcoal); line-height: 1.6; margin: 0;">Each product is selected with care to meet everyday needs.</p>
+        </div>
+        <div>
+          <h4 style="font-family: 'Fraunces', serif; font-size: 18px; color: var(--rust); margin-bottom: 8px;">Fast &amp; Secure Delivery</h4>
+          <p style="font-size: 12.5px; color: var(--charcoal); line-height: 1.6; margin: 0;">We ensure your orders arrive safely and on time.</p>
+        </div>
+        <div>
+          <h4 style="font-family: 'Fraunces', serif; font-size: 18px; color: var(--rust); margin-bottom: 8px;">Affordable Prices</h4>
+          <p style="font-size: 12.5px; color: var(--charcoal); line-height: 1.6; margin: 0;">Great value without compromising quality.</p>
+        </div>
+        <div>
+          <h4 style="font-family: 'Fraunces', serif; font-size: 18px; color: var(--rust); margin-bottom: 8px;">Customer-Focused Support</h4>
+          <p style="font-size: 12.5px; color: var(--charcoal); line-height: 1.6; margin: 0;">Our team is always ready to assist you with any queries.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LATEST WORK / SHOP NOW CALL TO ACTION ═════════════════════ -->
+<section style="background: #fff; padding: 80px 20px; text-align: center; border-top: 1px solid var(--line);">
+  <div style="max-width: 640px; margin: 0 auto;">
+    <div style="font-family: 'Sora', sans-serif; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--rust); font-weight: 700; margin-bottom: 12px;">Our latest work</div>
+    <h2 style="font-family: 'Fraunces', serif; font-size: 42px; color: var(--ink); margin-bottom: 20px; line-height: 1.2;">
+      Check Out What's New in Store
+    </h2>
+    <p style="font-size: 14px; color: var(--charcoal); line-height: 1.8; margin-bottom: 32px;">
+      Discover our newest selection of everyday essentials. Whether you're looking for inspiration or searching for something specific, our latest arrivals showcase what customers love most.
+    </p>
+    <a href="{% url 'catalog:product_list' %}?sort=-created_at" class="btn btn-rust" style="display: inline-flex; text-decoration: none; padding: 14px 36px; font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase;">
+      Shop Now
+    </a>
+  </div>
+</section>
+
+{% endblock %}
