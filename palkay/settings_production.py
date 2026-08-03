@@ -169,7 +169,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
     import warnings
-    warnings.warn("EMAIL_HOST_USER/PASSWORD not set — falling back to console email backend.")
+    warnings.warn("EMAIL_HOST_USER/PASSWORD not set - falling back to console email backend.")
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Palkay <noreply@palkay.com>')
 SERVER_EMAIL = config('SERVER_EMAIL', default='errors@palkay.com')
