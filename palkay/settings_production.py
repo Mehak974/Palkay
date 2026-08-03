@@ -123,6 +123,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # noqa: F405
 
 # WhiteNoise config
+WHITENOISE_MANIFEST_STRICT = False
 WHITENOISE_MAX_AGE = 31536000            # 1 year (files are content-hashed)
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = [
     'jpg', 'jpeg', 'png', 'gif', 'webp', 'zip', 'gz', 'tgz', 'bz2',
