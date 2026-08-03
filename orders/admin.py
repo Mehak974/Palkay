@@ -1,16 +1,23 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Address, Order, OrderItem, OrderStatusHistory
+from unfold.admin import ModelAdmin, TabularInline
+from .models import Address, Order, OrderItem, OrderStatusHistory, Coupon
+
+@admin.register(Coupon)
+class CouponAdmin(ModelAdmin):
+    list_display = ('code', 'discount_percent', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('code',)
 
 
-class OrderItemInline(admin.TabularInline):
+class OrderItemInline(TabularInline):
     model = OrderItem
     extra = 0
     readonly_fields = ('product_name', 'product_price', 'quantity', 'line_total')
     can_delete = False
 
 
-class OrderStatusHistoryInline(admin.TabularInline):
+class OrderStatusHistoryInline(TabularInline):
     model = OrderStatusHistory
     extra = 0
     readonly_fields = ('status', 'changed_by', 'changed_at', 'note')
@@ -19,7 +26,7 @@ class OrderStatusHistoryInline(admin.TabularInline):
 
 
 @admin.register(Address)
-class AddressAdmin(admin.ModelAdmin):
+class AddressAdmin(ModelAdmin):
     list_display = ('full_name', 'user', 'city', 'state', 'zip_code', 'is_default')
     list_filter = ('state', 'is_default')
     search_fields = ('full_name', 'address_line_1', 'zip_code')
@@ -27,17 +34,17 @@ class AddressAdmin(admin.ModelAdmin):
 
 
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ModelAdmin):
     list_display = ('order_number', 'user_display', 'total', 'status', 'payment_method', 'created_at')
     list_filter = ('status', 'payment_method', 'created_at')
     search_fields = ('order_number', 'user__email', 'guest_email', 'delivery_address__full_name')
-    readonly_fields = ('id', 'order_number', 'created_at', 'updated_at', 'cancelled_by_user_until')
+    readonly_fields = ('id', 'order_number', 'payment_method', 'created_at', 'updated_at', 'cancelled_by_user_until')
     inlines = [OrderItemInline, OrderStatusHistoryInline]
     ordering = ('-created_at',)
 
     fieldsets = (
         ('Order', {'fields': ('id', 'order_number', 'user', 'guest_email', 'delivery_address')}),
-        ('Financials', {'fields': ('subtotal', 'shipping_fee', 'total', 'payment_method')}),
+        ('Financials', {'fields': ('subtotal', 'shipping_fee', 'discount_amount', 'coupon_code', 'total', 'payment_method')}),
         ('Status', {'fields': ('status', 'special_instructions', 'expected_delivery_date')}),
         ('Timestamps', {'fields': ('created_at', 'updated_at', 'cancelled_by_user_until')}),
     )

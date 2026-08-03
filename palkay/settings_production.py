@@ -20,6 +20,10 @@ DEBUG = False
 SECRET_KEY = config('SECRET_KEY')
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
+from django.core.exceptions import ImproperlyConfigured
+if not ALLOWED_HOSTS or any(host in ALLOWED_HOSTS for host in ['localhost', '127.0.0.1', '*']):
+    raise ImproperlyConfigured("ALLOWED_HOSTS must be explicitly set to real domains in production.")
+
 # ── DATABASE (PostgreSQL) ────────────────────────────────────────────────────
 import dj_database_url  # noqa: E402
 
@@ -100,6 +104,7 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_NAME = 'plk_session'      # non-default name (obscures framework)
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
@@ -152,8 +157,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+
+if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+    raise ImproperlyConfigured("EMAIL_HOST_USER and EMAIL_HOST_PASSWORD are required for the SMTP backend in production.")
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Palkay <noreply@palkay.com>')
 SERVER_EMAIL = config('SERVER_EMAIL', default='errors@palkay.com')
 

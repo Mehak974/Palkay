@@ -49,7 +49,8 @@
             <td style="color:var(--charcoal);">{{ order.created_at|date:"M d, Y" }}</td>
             <td><strong style="color:var(--rust);">${{ order.total }}</strong></td>
             <td><span class="order-status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
-            <td><a href="{% url 'orders:detail' order.order_number %}" style="font-size:11px;font-weight:700;color:var(--rust);text-decoration:underline;">View →</a></td>
+            <td><a href="{% url 'orders:detail' order.order_number %}"
+                style="font-size:11px;font-weight:700;color:var(--rust);text-decoration:underline;">View →</a></td>
           </tr>
           {% endfor %}
         </tbody>
@@ -57,7 +58,8 @@
       {% else %}
       <div style="background:var(--panel);padding:32px;text-align:center;">
         <div style="font-size:36px;margin-bottom:10px;">📦</div>
-        <p style="color:var(--charcoal);">No orders yet. <a href="{% url 'catalog:product_list' %}" style="color:var(--rust);text-decoration:underline;">Start shopping →</a></p>
+        <p style="color:var(--charcoal);">No orders yet. <a href="{% url 'catalog:product_list' %}"
+            style="color:var(--rust);text-decoration:underline;">Start shopping →</a></p>
       </div>
       {% endif %}
     </div>

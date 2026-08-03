@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.http import HttpResponse
 from django.views.decorators.http import require_GET
+from palkay.mail import send_mail_background
+from django.conf import settings
 
 from catalog.models import Product, Category, Brand
 from .models import Page, ContactSubmission
@@ -79,6 +81,19 @@ def contact(request):
                 name=name, email=email, phone=phone,
                 subject=subject, message=message,
             )
+            # Send email via Gmail in background
+            email_body = f"Name: {name}\nEmail: {email}\nPhone: {phone}\nSubject: {subject}\n\nMessage:\n{message}"
+            try:
+                send_mail_background(
+                    f"New Contact Form Submission: {subject}",
+                    email_body,
+                    settings.EMAIL_HOST_USER,
+                    [settings.EMAIL_HOST_USER], # Send to yourself
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"Failed to send email: {e}")
+
             messages.success(request, "Thanks for reaching out! We'll get back to you within 24 hours.")
             return redirect('pages:contact')
         else:

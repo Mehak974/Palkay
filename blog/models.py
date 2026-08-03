@@ -24,6 +24,8 @@ class Post(models.Model):
     category = models.ForeignKey(PostCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='posts')
     content = models.TextField()
     is_published = models.BooleanField(default=False)
+    featured_image = models.ImageField(upload_to='blog/', null=True, blank=True)
+    published_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

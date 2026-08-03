@@ -105,6 +105,8 @@ class Product(models.Model):
     )
     view_count = models.IntegerField(default=0)
     order_count = models.IntegerField(default=0)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    review_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -235,3 +237,16 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.rating} Stars - {self.product.name} by {self.user.email}'
+
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.db.models import Avg, Count
+
+@receiver([post_save, post_delete], sender=Review)
+def update_product_rating(sender, instance, **kwargs):
+    product = instance.product
+    approved_reviews = product.reviews.filter(is_approved=True)
+    stats = approved_reviews.aggregate(avg=Avg('rating'), count=Count('id'))
+    product.average_rating = stats['avg'] or 0.0
+    product.review_count = stats['count']
+    product.save(update_fields=['average_rating', 'review_count'])

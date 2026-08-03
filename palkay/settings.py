@@ -17,6 +17,7 @@ SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', default=True, cast=bool)
 
 # ─── APPLICATIONS ──────────────────────────────────────────────
 INSTALLED_APPS = [
+    'unfold.contrib.forms',
     'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -187,3 +188,84 @@ try:
     BaseContext.__copy__ = _patched_copy
 except (ImportError, AttributeError):
     pass
+
+# ─── UNFOLD ADMIN SETTINGS ──────────────────────────────────────
+UNFOLD = {
+    "SITE_TITLE": "Palkay Admin",
+    "SITE_HEADER": "Palkay",
+    "SITE_URL": "/",
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Store Management",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Orders",
+                        "icon": "shopping_cart",
+                        "link": "/admin/orders/order/",
+                    },
+                    {
+                        "title": "Products",
+                        "icon": "inventory_2",
+                        "link": "/admin/catalog/product/",
+                    },
+                    {
+                        "title": "Categories",
+                        "icon": "category",
+                        "link": "/admin/catalog/category/",
+                    },
+                    {
+                        "title": "Brands",
+                        "icon": "branding_watermark",
+                        "link": "/admin/catalog/brand/",
+                    },
+                    {
+                        "title": "Reviews",
+                        "icon": "star",
+                        "link": "/admin/catalog/review/",
+                    },
+                    {
+                        "title": "Coupons",
+                        "icon": "local_offer",
+                        "link": "/admin/orders/coupon/",
+                    },
+                ],
+            },
+            {
+                "title": "Content & Blog",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Blog Posts",
+                        "icon": "article",
+                        "link": "/admin/blog/post/",
+                    },
+                    {
+                        "title": "Pages",
+                        "icon": "description",
+                        "link": "/admin/pages/page/",
+                    },
+                ],
+            },
+            {
+                "title": "Customers",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Users",
+                        "icon": "people",
+                        "link": "/admin/users/user/",
+                    },
+                    {
+                        "title": "Support Tickets",
+                        "icon": "support_agent",
+                        "link": "/admin/support/ticket/",
+                    },
+                ],
+            },
+        ],
+    },
+}

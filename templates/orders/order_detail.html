@@ -50,6 +50,9 @@
           <div style="padding:16px 20px;display:flex;flex-direction:column;gap:6px;">
             <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--charcoal);"><span>Subtotal</span><span>${{ order.subtotal }}</span></div>
             <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--charcoal);"><span>Shipping</span><span>{% if order.shipping_fee == 0 %}Free{% else %}${{ order.shipping_fee }}{% endif %}</span></div>
+            {% if order.discount_amount > 0 %}
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--success);"><span>Discount ({{ order.coupon_code }})</span><span>-${{ order.discount_amount }}</span></div>
+            {% endif %}
             <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;border-top:1px solid var(--line);padding-top:10px;margin-top:4px;"><span>Total</span><span style="color:var(--rust);">${{ order.total }}</span></div>
           </div>
         </div>

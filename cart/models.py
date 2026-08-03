@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from catalog.models import Product, ProductVariant
+from orders.models import Coupon
 
 
 class Cart(models.Model):
@@ -16,6 +17,7 @@ class Cart(models.Model):
         related_name='cart'
     )
     session_key = models.CharField(max_length=40, unique=True, null=True, blank=True)
+    coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -54,8 +56,14 @@ class Cart(models.Model):
         return 10  # flat shipping fee
 
     @property
+    def discount_amount(self):
+        if self.coupon and self.coupon.is_active:
+            return (self.subtotal * self.coupon.discount_percent) / 100
+        return 0
+
+    @property
     def total(self):
-        return self.subtotal + self.shipping_fee
+        return self.subtotal - self.discount_amount + self.shipping_fee
 
     def get_or_create_item(self, product, variant=None):
         """Return existing cart item or create a new one."""

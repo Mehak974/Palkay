@@ -105,13 +105,17 @@ def _place_order(request, cart, address, special_instructions='', guest_email=''
 
         subtotal = cart.subtotal
         shipping_fee = cart.shipping_fee
+        discount_amount = cart.discount_amount
+        coupon_code = cart.coupon.code if cart.coupon else ''
 
         order = Order.objects.create(
             user=request.user if request.user.is_authenticated else None,
             delivery_address=address,
             subtotal=subtotal,
             shipping_fee=shipping_fee,
-            total=subtotal + shipping_fee,
+            discount_amount=discount_amount,
+            coupon_code=coupon_code,
+            total=subtotal - discount_amount + shipping_fee,
             special_instructions=special_instructions,
             guest_email=guest_email,
         )

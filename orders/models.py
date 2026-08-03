@@ -6,6 +6,14 @@ from django.utils import timezone
 from datetime import timedelta
 from catalog.models import Product, ProductVariant
 
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    discount_percent = models.IntegerField(validators=[MinValueValidator(1)])
+    is_active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f"{self.code} (-{self.discount_percent}%)"
+
 
 class Address(models.Model):
     """
@@ -69,6 +77,8 @@ class Order(models.Model):
     )
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    coupon_code = models.CharField(max_length=50, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=10, default='COD', editable=False)
     status = models.CharField(

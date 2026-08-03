@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}My Tickets | Palkay{% endblock %}
+
+{% block content %}
+<div class="account-wrap">
+  {% include "partials/account_sidebar.html" %}
+  <div class="account-main">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h1 style="font-size:24px;">Support Tickets</h1>
+      <a href="{% url 'support:create' %}" class="btn btn-primary btn-sm">Create New Ticket</a>
+    </div>
+
+    {% if tickets %}
+    <div style="border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--white);">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead style="background:var(--paper);border-bottom:1px solid var(--line);text-align:left;">
+          <tr>
+            <th style="padding:12px 16px;font-weight:600;color:var(--charcoal);">ID</th>
+            <th style="padding:12px 16px;font-weight:600;color:var(--charcoal);">Subject</th>
+            <th style="padding:12px 16px;font-weight:600;color:var(--charcoal);">Status</th>
+            <th style="padding:12px 16px;font-weight:600;color:var(--charcoal);">Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in tickets %}
+          <tr style="border-bottom:1px solid var(--line);">
+            <td style="padding:16px;">#{{ ticket.id }}</td>
+            <td style="padding:16px;"><a href="{% url 'support:detail' ticket.id %}" style="font-weight:600;color:var(--ink);">{{ ticket.subject }}</a></td>
+            <td style="padding:16px;">
+              <span style="display:inline-block;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600;
+              {% if ticket.status == 'open' %}background:#E3F2FD;color:#1976D2;
+              {% elif ticket.status == 'in_progress' %}background:#FFF3E0;color:#F57C00;
+              {% elif ticket.status == 'resolved' %}background:#E8F5E9;color:#388E3C;
+              {% else %}background:#F5F5F5;color:#616161;{% endif %}">
+                {{ ticket.get_status_display }}
+              </span>
+            </td>
+            <td style="padding:16px;color:var(--charcoal);">{{ ticket.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="padding:40px;text-align:center;background:var(--paper);border-radius:6px;">
+      <p style="color:var(--charcoal);margin-bottom:16px;">You haven't created any support tickets yet.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

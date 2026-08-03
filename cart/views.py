@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from django.db import transaction
 
 from catalog.models import Product, ProductVariant
+from orders.models import Coupon
 from .models import Cart, CartItem
 
 
@@ -112,3 +113,31 @@ def merge_guest_cart(request, user):
                 guest_item.cart = user_cart
                 guest_item.save()
         guest_cart.delete()
+
+@require_POST
+def apply_coupon(request):
+    """Apply a discount coupon to the cart."""
+    code = request.POST.get('code', '').strip()
+    cart = request.cart
+    if not cart:
+        return redirect('cart:detail')
+    
+    try:
+        coupon = Coupon.objects.get(code__iexact=code, is_active=True)
+        cart.coupon = coupon
+        cart.save()
+        messages.success(request, f'Coupon "{coupon.code}" applied successfully!')
+    except Coupon.DoesNotExist:
+        messages.error(request, 'Invalid or expired coupon code.')
+        
+    return redirect('cart:detail')
+
+@require_POST
+def remove_coupon(request):
+    """Remove coupon from cart."""
+    cart = request.cart
+    if cart and cart.coupon:
+        cart.coupon = None
+        cart.save()
+        messages.info(request, 'Coupon removed.')
+    return redirect('cart:detail')

@@ -29,7 +29,9 @@ urlpatterns = [
     path('checkout/', include('orders.urls')),
     path('blog/', include('blog.urls')),
     path('admin/analytics/', include('analytics.urls')),
+    path('support/', include('support.urls')),
     path('account/', include('users.urls')),
+    path('account/', include('django.contrib.auth.urls')),
 ]
 
 if settings.DEBUG:

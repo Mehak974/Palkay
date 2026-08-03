@@ -49,14 +49,23 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    """Account dashboard — recent orders + summary."""
-    recent_orders = request.user.orders.order_by('-created_at')[:5]
-    wishlist_count = Wishlist.objects.filter(user=request.user).count()
-    address_count = Address.objects.filter(user=request.user).count()
+    """Account dashboard — overview, orders, addresses, wishlist."""
+    all_orders = request.user.orders.order_by('-created_at')
+    recent_orders = all_orders[:5]
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product').prefetch_related('product__images')
+    addresses = Address.objects.filter(user=request.user)
+    
+    from orders.forms import AddressForm
+    address_form = AddressForm(user=request.user)
+    
     return render(request, 'users/dashboard.html', {
         'recent_orders': recent_orders,
-        'wishlist_count': wishlist_count,
-        'address_count': address_count,
+        'all_orders': all_orders,
+        'wishlist_items': wishlist_items,
+        'wishlist_count': wishlist_items.count(),
+        'addresses': addresses,
+        'address_count': addresses.count(),
+        'address_form': address_form,
     })
 
 
@@ -96,35 +105,54 @@ def address_list(request):
 @login_required
 def address_add(request):
     from orders.forms import AddressForm
+    from django.http import JsonResponse
     form = AddressForm(request.POST or None, user=request.user)
-    if request.method == 'POST' and form.is_valid():
-        addr = form.save(commit=False)
-        addr.user = request.user
-        addr.save()
-        messages.success(request, 'Address saved.')
-        return redirect('users:addresses')
+    if request.method == 'POST':
+        if form.is_valid():
+            addr = form.save(commit=False)
+            addr.user = request.user
+            addr.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success', 'id': addr.pk, 'full_name': addr.full_name, 'address_line1': addr.address_line1, 'city': addr.city, 'state': addr.state, 'postal_code': addr.postal_code, 'country': addr.country})
+            messages.success(request, 'Address saved.')
+            return redirect('users:dashboard')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
     return render(request, 'users/address_form.html', {'form': form, 'title': 'Add Address'})
 
 
 @login_required
 def address_edit(request, pk):
     from orders.forms import AddressForm
+    from django.http import JsonResponse
     address = get_object_or_404(Address, pk=pk, user=request.user)
     form = AddressForm(request.POST or None, instance=address, user=request.user)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, 'Address updated.')
-        return redirect('users:addresses')
+    if request.method == 'POST':
+        if form.is_valid():
+            addr = form.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success', 'id': addr.pk, 'full_name': addr.full_name, 'address_line1': addr.address_line1, 'city': addr.city, 'state': addr.state, 'postal_code': addr.postal_code, 'country': addr.country})
+            messages.success(request, 'Address updated.')
+            return redirect('users:dashboard')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
     return render(request, 'users/address_form.html', {'form': form, 'title': 'Edit Address'})
 
 
 @login_required
 @require_POST
 def address_delete(request, pk):
+    from django.http import JsonResponse
     address = get_object_or_404(Address, pk=pk, user=request.user)
     if address.orders.exists():
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'message': 'Cannot delete an address linked to existing orders.'}, status=400)
         messages.error(request, 'Cannot delete an address linked to existing orders.')
     else:
         address.delete()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success'})
         messages.success(request, 'Address removed.')
-    return redirect('users:addresses')
+    return redirect('users:dashboard')
