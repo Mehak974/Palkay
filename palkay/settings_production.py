@@ -119,17 +119,9 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_NAME = 'plk_csrf'           # non-default name
 
 # ── STATIC FILES ─────────────────────────────────────────────────────────────
-# ponytail: using non-manifest storage until collectstatic is run; upgrade to
-# CompressedManifestStaticFilesStorage after first successful collectstatic
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# ponytail: plain storage avoids manifest/hashing crashes on shared hosting
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # noqa: F405
-
-# WhiteNoise config
-WHITENOISE_MAX_AGE = 60 * 60 * 24        # 1 day (no content hashing yet)
-WHITENOISE_SKIP_COMPRESS_EXTENSIONS = [
-    'jpg', 'jpeg', 'png', 'gif', 'webp', 'zip', 'gz', 'tgz', 'bz2',
-    'tbz', 'xz', 'br', 'swf', 'flv', 'woff', 'woff2',
-]
 
 # ── MEDIA FILES (S3) ──────────────────────────────────────────────────────────
 USE_S3 = config('USE_S3', default=False, cast=bool)
@@ -170,8 +162,6 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
-    import warnings
-    warnings.warn("EMAIL_HOST_USER/PASSWORD not set - falling back to console email backend.")
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Palkay <noreply@palkay.com>')
 SERVER_EMAIL = config('SERVER_EMAIL', default='errors@palkay.com')
