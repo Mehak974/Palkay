@@ -35,8 +35,12 @@ def home(request):
         is_active=True, is_featured=True, images__isnull=False
     ).distinct().select_related('category', 'brand').prefetch_related('images').order_by('-created_at')[:6]
 
+    import datetime
+    from django.utils import timezone
+    cutoff_date = timezone.make_aware(datetime.datetime(2026, 8, 1))
+
     new_arrivals = Product.objects.filter(
-        is_active=True, category__name='Home & Decor', images__isnull=False
+        is_active=True, category__name='Home & Decor', images__isnull=False, created_at__lt=cutoff_date
     ).distinct().select_related('category', 'brand').prefetch_related('images').order_by('-created_at')[:5]
 
     categories = Category.objects.filter(
@@ -116,3 +120,4 @@ def cms_page(request, slug):
 
 def about(request):
     return render(request, 'pages/about.html')
+
