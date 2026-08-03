@@ -119,17 +119,13 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_NAME = 'plk_csrf'           # non-default name
 
 # ── STATIC FILES ─────────────────────────────────────────────────────────────
-from whitenoise.storage import CompressedManifestStaticFilesStorage
-
-class NonStrictManifestStaticFilesStorage(CompressedManifestStaticFilesStorage):
-    manifest_strict = False
-
-STATICFILES_STORAGE = 'palkay.settings_production.NonStrictManifestStaticFilesStorage'
+# ponytail: using non-manifest storage until collectstatic is run; upgrade to
+# CompressedManifestStaticFilesStorage after first successful collectstatic
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # noqa: F405
 
 # WhiteNoise config
-WHITENOISE_MANIFEST_STRICT = False
-WHITENOISE_MAX_AGE = 31536000            # 1 year (files are content-hashed)
+WHITENOISE_MAX_AGE = 60 * 60 * 24        # 1 day (no content hashing yet)
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = [
     'jpg', 'jpeg', 'png', 'gif', 'webp', 'zip', 'gz', 'tgz', 'bz2',
     'tbz', 'xz', 'br', 'swf', 'flv', 'woff', 'woff2',
