@@ -38,29 +38,36 @@ DATABASES = {
 # PgBouncer-safe: disable server-side cursors when using a pooler
 DISABLE_SERVER_SIDE_CURSORS = config('DISABLE_SERVER_SIDE_CURSORS', default=False, cast=bool)
 
-# ── REDIS CACHE ──────────────────────────────────────────────────────────────
-REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/0')
+# ── CACHE & SESSIONS ─────────────────────────────────────────────────────────
+REDIS_URL = config('REDIS_URL', default='')
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': REDIS_URL,
-        'KEY_PREFIX': 'palkay',
-        'TIMEOUT': 300,  # 5 minutes default
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'SOCKET_CONNECT_TIMEOUT': 5,
-            'SOCKET_TIMEOUT': 5,
-            'RETRY_ON_TIMEOUT': True,
-            'MAX_CONNECTIONS': 20,
-            'CONNECTION_POOL_KWARGS': {'max_connections': 20},
-        },
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'KEY_PREFIX': 'palkay',
+            'TIMEOUT': 300,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'SOCKET_CONNECT_TIMEOUT': 5,
+                'SOCKET_TIMEOUT': 5,
+                'RETRY_ON_TIMEOUT': True,
+                'MAX_CONNECTIONS': 20,
+                'CONNECTION_POOL_KWARGS': {'max_connections': 20},
+            },
+        }
     }
-}
-
-# Use Redis for sessions too (faster than DB sessions)
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+    SESSION_CACHE_ALIAS = 'default'
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'palkay-local-cache',
+        }
+    }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # ── SECURITY MIDDLEWARE ──────────────────────────────────────────────────────
 MIDDLEWARE = [
