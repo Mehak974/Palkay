@@ -29,7 +29,7 @@ import dj_database_url  # noqa: E402
 
 DATABASES = {
     'default': dj_database_url.parse(
-        config('DATABASE_URL'),
+        config('DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
         conn_max_age=600,           # persistent connections, 10 min
         conn_health_checks=True,
     )
