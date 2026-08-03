@@ -119,7 +119,12 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_NAME = 'plk_csrf'           # non-default name
 
 # ── STATIC FILES ─────────────────────────────────────────────────────────────
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+from whitenoise.storage import CompressedManifestStaticFilesStorage
+
+class NonStrictManifestStaticFilesStorage(CompressedManifestStaticFilesStorage):
+    manifest_strict = False
+
+STATICFILES_STORAGE = 'palkay.settings_production.NonStrictManifestStaticFilesStorage'
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # noqa: F405
 
 # WhiteNoise config
